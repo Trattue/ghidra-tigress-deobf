@@ -1,0 +1,11 @@
+# Ignore everything
+/*
+
+# Whitelist src
+!/poetry.lock
+!/pyproject.toml
+!/README.md
+!/samples/
+!/src/
+!/tests/
+!/.gitignore

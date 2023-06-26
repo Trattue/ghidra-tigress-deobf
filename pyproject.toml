@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "ghidra-tigress-deobf"
+version = "0.1.0"
+description = ""
+authors = ["Trattue <63713970+Trattue@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "gtd", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+angr = "^9.2.55"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+main = "gtd.__main__:main"
