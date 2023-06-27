@@ -2,43 +2,29 @@ import math
 
 import claripy
 
-
-class TranslatedExpr:
-    expr: str
-    helpers: list[str]
-
-    def __init__(self):
-        self.expr = ""
-        self.helpers = []
-
-    def __str__(self) -> str:
-        result = ""
-        for h in self.helpers:
-            result = result + h + "\n"
-        result = result + self.expr
-        return result
+from .expression import SleighExpr
 
 
-def convert_jump(target, guard) -> TranslatedExpr:
+def translate_jump(target, guard) -> SleighExpr:
     # TODO: simplify if(1)?
     # TODO: handle jumps properly with labels (in state tree?)
-    result = TranslatedExpr()
-    translated_target = convert(target)
-    translated_guard = convert(guard)
-    result.helpers.extend(translated_target.helpers)
-    result.helpers.extend(translated_guard.helpers)
+    result = SleighExpr()
+    translated_target = _translate_expr(target)
+    translated_guard = _translate_expr(guard)
+    result.context.extend(translated_target.context)
+    result.context.extend(translated_guard.context)
     result.expr = f"if ({translated_guard.expr}) goto {translated_target.expr};"
     return result
 
 
-def convert_write(target, data):
+def translate_write(target, data):
     # TODO: handle target assignment properly (addr vs variables) (do we even have variables currently?)
 
-    result = TranslatedExpr()
-    translated_target = convert(target)
-    translated_data = convert(data)
-    result.helpers.extend(translated_target.helpers)
-    result.helpers.extend(translated_data.helpers)
+    result = SleighExpr()
+    translated_target = _translate_expr(target)
+    translated_data = _translate_expr(data)
+    result.context.extend(translated_target.context)
+    result.context.extend(translated_data.context)
 
     result.expr = f"{translated_target.expr} = {translated_data.expr};"
     if target.op != "BVS":
@@ -54,53 +40,53 @@ def convert_write(target, data):
     return result
 
 
-def convert_read(a, b):
+def translate_read(a, b):
     # TODO
     return f"READ: {a} at {b}"
 
 
-def convert_call(target):
-    result = TranslatedExpr()
+def translate_call(target):
+    result = SleighExpr()
     result.expr = f"call {hex(target)};"
     return result
 
 
-def convert(expr) -> TranslatedExpr:
+def _translate_expr(expr) -> SleighExpr:
     match type(expr):
         case claripy.ast.bool.Bool:
-            return _convert_bool(expr)
+            return _translate_bool(expr)
         case claripy.ast.bv.BV:
-            return _convert_bv(expr)
+            return _translate_bv(expr)
         case _:
-            result = TranslatedExpr()
+            result = SleighExpr()
             result.expr = f"[NOT IMPLEMENTED: {type(expr)}]"
             return result
 
 
-def _convert_bool(expr) -> TranslatedExpr:
-    result = TranslatedExpr()
+def _translate_bool(expr) -> SleighExpr:
+    result = SleighExpr()
     match expr.op:
         case "BoolV":
             result.expr = "1" if expr.args[0] else "0"
         case "__eq__":
-            arg0 = convert(expr.args[0])
-            arg1 = convert(expr.args[1])
-            result.helpers.extend(arg0.helpers)
-            result.helpers.extend(arg1.helpers)
+            arg0 = _translate_expr(expr.args[0])
+            arg1 = _translate_expr(expr.args[1])
+            result.context.extend(arg0.context)
+            result.context.extend(arg1.context)
             result.expr = f"({arg0.expr}) == ({arg1.expr})"
         case "__ne__":
-            arg0 = convert(expr.args[0])
-            arg1 = convert(expr.args[1])
+            arg0 = _translate_expr(expr.args[0])
+            arg1 = _translate_expr(expr.args[1])
             print(arg0.expr)
             print(arg1.expr)
-            result.helpers.extend(arg0.helpers)
-            result.helpers.extend(arg1.helpers)
+            result.context.extend(arg0.context)
+            result.context.extend(arg1.context)
             result.expr = f"({arg0.expr}) != ({arg1.expr})"
         case "SLT":
-            arg0 = convert(expr.args[0])
-            arg1 = convert(expr.args[1])
-            result.helpers.extend(arg0.helpers)
-            result.helpers.extend(arg1.helpers)
+            arg0 = _translate_expr(expr.args[0])
+            arg1 = _translate_expr(expr.args[1])
+            result.context.extend(arg0.context)
+            result.context.extend(arg1.context)
             result.expr = f"({arg0.expr}) s< ({arg1.expr})"
         case _:
             result.expr = f"[NOT IMPLEMENTED BOOL: {expr.op}]"
@@ -113,8 +99,8 @@ if_result_count = 0
 if_label_count = 0
 
 
-def _convert_bv(expr) -> TranslatedExpr:
-    result = TranslatedExpr()
+def _translate_bv(expr) -> SleighExpr:
+    result = SleighExpr()
     match expr.op:
         case "BVV":
             result.expr = f"{hex(expr.args[0])}"
@@ -127,18 +113,27 @@ def _convert_bv(expr) -> TranslatedExpr:
                 result.expr = "vpc"
             else:
                 result.expr = f"{expr.args[0]}"
-
         case "__add__":
-            arg0 = convert(expr.args[0])
-            branch1 = convert(expr.args[1])
-            result.expr = f"({arg0} + {branch1})"
+            add_result = ""
+            for i, e in enumerate(expr.args):
+                t = _translate_expr(e)
+                result.context.extend(t.context)
+                if i != 0:
+                    add_result += " + "
+                add_result += t.expr
+            result.expr = f"({add_result})"
         case "__sub__":
-            arg0 = convert(expr.args[0])
-            branch1 = convert(expr.args[1])
-            result.expr = f"({arg0} - {branch1})"
+            sub_result = ""
+            for i, e in enumerate(expr.args):
+                t = _translate_expr(e)
+                result.context.extend(t.context)
+                if i != 0:
+                    sub_result += " + "
+                sub_result += t.expr
+            result.expr = f"({sub_result})"
         case "SignExt":
             # TODO: handle length properly for sleigh? new variable?
-            result.expr = f"sext({convert(expr.args[1])})"
+            result.expr = f"sext({_translate_expr(expr.args[1])})"
         case "Concat":
             global concat_tmp_count, concat_result_count
 
@@ -156,17 +151,17 @@ def _convert_bv(expr) -> TranslatedExpr:
             # Then we can simply logically or those values.
             bit_vectors = expr.args
             total_length = expr.length
-            translated_exprs = list(map(lambda e: convert(e), bit_vectors))
+            translated_exprs = list(map(lambda e: _translate_expr(e), bit_vectors))
 
             for te in translated_exprs:
-                result.helpers.extend(te.helpers)
+                result.context.extend(te.context)
 
             # Concat value shifts
             shift = total_length
             tmp_used = []
             for i, e in enumerate(bit_vectors):
                 shift -= e.length
-                result.helpers.append(
+                result.context.append(
                     f"local concat_tmp_{concat_tmp_count}: {math.ceil(total_length / 8)} = ({translated_exprs[i].expr}) << {shift};"
                 )
                 tmp_used.append(concat_tmp_count)
@@ -176,11 +171,11 @@ def _convert_bv(expr) -> TranslatedExpr:
             concat_result = f"local concat_result_{concat_result_count}: {math.ceil(total_length / 8)} = "
             for i, tmp in enumerate(tmp_used):
                 if i != 0:
-                    concat_result = concat_result + " | "
-                concat_result = concat_result + f"concat_tmp_{tmp}"
+                    concat_result += " | "
+                concat_result += f"concat_tmp_{tmp}"
             concat_result += ";"
             concat_result_count += 1
-            result.helpers.append(concat_result)
+            result.context.append(concat_result)
             result.expr = f"(concat_result_{concat_result_count - 1})"
         case "If":
             global if_result_count, if_label_count
@@ -193,28 +188,28 @@ def _convert_bv(expr) -> TranslatedExpr:
             # jumps to set the value.
 
             # Condition
-            cond = convert(expr.args[0])
-            result.helpers.extend(cond.helpers)
-            result.helpers.append(
+            cond = _translate_expr(expr.args[0])
+            result.context.extend(cond.context)
+            result.context.append(
                 # TODO: check if 1bit local variable is correct (do we have to expand it when assigning to larger variable?)
                 f"local if_result_{if_result_count}: {math.ceil(expr.length / 8)} = 0;"
             )
-            result.helpers.append(f"if ({cond.expr}) goto <if_label_{if_label_count}>;")
+            result.context.append(f"if ({cond.expr}) goto <if_label_{if_label_count}>;")
 
             # Branch 2
-            branch2 = convert(expr.args[2])
-            result.helpers.extend(branch2.helpers)
-            result.helpers.append(f"if_result_{if_result_count} = {branch2.expr};")
-            result.helpers.append(f"goto <if_label_{if_label_count + 1}>;")
+            branch2 = _translate_expr(expr.args[2])
+            result.context.extend(branch2.context)
+            result.context.append(f"if_result_{if_result_count} = {branch2.expr};")
+            result.context.append(f"goto <if_label_{if_label_count + 1}>;")
 
             # Branch 1
-            result.helpers.append(f"<if_label_{if_label_count}>:")
-            branch1 = convert(expr.args[1])
-            result.helpers.extend(branch1.helpers)
-            result.helpers.append(f"if_result_{if_result_count} = {branch1.expr};")
+            result.context.append(f"<if_label_{if_label_count}>:")
+            branch1 = _translate_expr(expr.args[1])
+            result.context.extend(branch1.context)
+            result.context.append(f"if_result_{if_result_count} = {branch1.expr};")
 
             # End
-            result.helpers.append(f"<if_label_{if_label_count + 1}>:")
+            result.context.append(f"<if_label_{if_label_count + 1}>:")
             result.expr = f"if_result_{if_result_count}"
             if_result_count += 1
             if_label_count += 2

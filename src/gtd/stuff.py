@@ -1,8 +1,8 @@
 import angr
 import claripy
 
-import gtd.claripy2sleigh
 import gtd.sim_actions
+import gtd.sleigh.translation
 from gtd.handler import Handler
 
 
@@ -52,6 +52,11 @@ def create_simulation(
     state.inspect.b("call", action=hook_call)
     state.inspect.b("exit", action=hook_exit)
     state.inspect.b("fork", action=hook_fork, when=angr.state_plugins.BP_AFTER)
+    # state.inspect.b(
+    #    "address_concretization",
+    #    action=hook_address_concretization,
+    #    when=angr.state_plugins.BP_AFTER,
+    # )
 
     return project.factory.simgr(state)
 
@@ -77,6 +82,12 @@ def hook_fork(state):
         s.history.add_action(a)
 
 
+def hook_address_concretization(state):
+    print("ARGH")
+    print(f"{state.inspect.address_concretization_expr}")
+    print(f"{state.inspect.address_concretization_result}")
+
+
 def visit_solution(solution):
     actions = solution.history.actions.hardcopy
     for a in actions:
@@ -85,16 +96,16 @@ def visit_solution(solution):
                 if a.action == "write":
                     target = a.addr.to_claripy()
                     data = a.data.to_claripy()
-                    print(gtd.claripy2sleigh.convert_write(target, data))
+                    print(gtd.sleigh.translation.translate_write(target, data))
                 elif a.action == "read":
                     # TODO investigate what happens when address is symbolic (for example index) -- somehow create new symbolic variable? can't do that in read bp, only change name of bvs
                     source = a.addr.to_claripy()
                     data = a.data.to_claripy()
-                    # print(gtd.claripy2sleigh.convert_read(data, source))
+                    # print(gtd.sleigh.translation.convert_read(data, source))
             case gtd.sim_actions.SimActionCall:
-                print(gtd.claripy2sleigh.convert_call(a.target))
+                print(gtd.sleigh.translation.translate_call(a.target))
             case gtd.sim_actions.SimActionJump:
-                print(gtd.claripy2sleigh.convert_jump(a.target, a.guard))
+                print(gtd.sleigh.translation.translate_jump(a.target, a.guard))
             case gtd.sim_actions.SimActionFork:
                 print("FORK")
             case _:
