@@ -9,3 +9,6 @@
 !/src/
 !/tests/
 !/.gitignore
+
+# Ignore pycache globally >:(
+**/__pycache__
