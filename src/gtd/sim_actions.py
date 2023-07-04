@@ -21,5 +21,13 @@ class SimActionJump(angr.state_plugins.SimAction):
 
 
 class SimActionFork(angr.state_plugins.SimAction):
-    def __init__(self, state):
+    id: int
+
+    def __init__(self, state, id):
         super().__init__(state, "tmp")
+        self.id = id
+
+
+class SimActionEnd(SimActionFork):
+    def __init__(self, state, id):
+        super().__init__(state, id)

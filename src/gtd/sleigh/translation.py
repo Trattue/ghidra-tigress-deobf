@@ -40,9 +40,19 @@ def translate_write(target, data):
     return result
 
 
-def translate_read(a, b):
-    # TODO
-    return f"READ: {a} at {b}"
+def translate_read(expr, addr) -> SleighExpr | None:
+    if addr.concrete and (
+        addr.args[0] == 0x7FF0000000 - 0x140 or addr.args[0] == 0x7FF0000000 - 0x138
+    ):
+        # TODO: remove ugly hardcode
+        return
+
+    # TODO: use references?
+    result = SleighExpr()
+    translated_addr = _translate_expr(addr)
+    result.context.extend(translated_addr.context)
+    result.expr = f"local {expr.args[0]}: {expr.length} = *{translated_addr.expr}"
+    return result
 
 
 def translate_call(target):
