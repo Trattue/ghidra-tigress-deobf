@@ -12,8 +12,9 @@ class StateTree:
         queue = [0]
         while len(queue) > 0:
             current = self.states[queue.pop(0)]
-            if current != 0:
+            if current.id != 0:
                 result += "\n"
             result += f"{current}"
             queue.extend(map(lambda jump: jump.target_id, current.jumps))
+        result += "\n<end>:"
         return result

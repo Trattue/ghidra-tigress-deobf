@@ -87,8 +87,6 @@ def _translate_bool(expr) -> SleighExpr:
         case "__ne__":
             arg0 = _translate_expr(expr.args[0])
             arg1 = _translate_expr(expr.args[1])
-            print(arg0.expr)
-            print(arg1.expr)
             result.context.extend(arg0.context)
             result.context.extend(arg1.context)
             result.expr = f"({arg0.expr}) != ({arg1.expr})"

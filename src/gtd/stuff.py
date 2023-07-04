@@ -2,11 +2,12 @@ import angr
 import claripy
 
 import gtd.sim_actions
+from gtd.sleigh.expression import SleighExpr
 import gtd.sleigh.translation
 from gtd.handler import Handler
+from gtd.state.jump import StateJump
 from gtd.state.state import State
 from gtd.state.tree import StateTree
-from gtd.state.jump import StateJump
 
 
 def do_stuff(path, handlers):
@@ -23,14 +24,17 @@ def visit_handler(project: angr.Project, handler: Handler):  # Clean up globals
     print(f"\n# Handler {hex(handler.opcode)}")
     simulation = create_simulation(project, handler.start_addr)
     simulation.explore(find=handler.end_addr, num_find=999)
+
     for err in simulation.errored:
         print(f"ERROR: {err}")
-    for i, sol in enumerate(simulation.found):
+
+    state_tree = StateTree()
+    for sol in simulation.found:
         a = gtd.sim_actions.SimActionEnd(sol, fork_id)
         sol.history.add_action(a)
         fork_id += 1
-        print(f"## Solution {i}")
-        visit_solution(sol)
+        visit_solution(sol, state_tree)
+    print(state_tree)
 
 
 RBP_ADDRESS = 0x7FF0000000
@@ -125,34 +129,7 @@ def hook_mem_read(state):
     read_expr_count += 1
 
 
-def visit_solution(solution):
-    actions = solution.history.actions.hardcopy
-    for a in actions:
-        match type(a):
-            case angr.state_plugins.SimActionData:
-                if a.action == "write":
-                    target = a.addr.to_claripy()
-                    data = a.data.to_claripy()
-                    print(gtd.sleigh.translation.translate_write(target, data))
-                elif a.action == "read":
-                    addr = a.addr.to_claripy()
-                    expr = a.data.to_claripy()
-                    result = gtd.sleigh.translation.translate_read(expr, addr)
-                    if result != None:
-                        print(result)
-            case gtd.sim_actions.SimActionCall:
-                print(gtd.sleigh.translation.translate_call(a.target))
-            case gtd.sim_actions.SimActionJump:
-                print(gtd.sleigh.translation.translate_jump(a.target, a.guard))
-            case gtd.sim_actions.SimActionFork:
-                print(f"FORK {a.id}")
-            case gtd.sim_actions.SimActionEnd:
-                print(f"END {a.id}")
-            case _:
-                pass
-
-
-def visit_solution_new(solution, state_tree):
+def visit_solution(solution, state_tree):
     actions = solution.history.actions.hardcopy
 
     state_expressions = []
@@ -188,6 +165,7 @@ def visit_solution_new(solution, state_tree):
                 # fork the current state. Therefore, we can safely ignore any jumps
                 # apart from the last jump before the fork. This means we can overwrite
                 # the stored jump until we encounter a fork.
+                # TODO should be correct, but discuss with Fabian
                 state_jump = gtd.sleigh.translation._translate_bool(action.guard)
             case gtd.sim_actions.SimActionFork:
                 # We know that the last jump before a fork is different between
@@ -209,7 +187,7 @@ def visit_solution_new(solution, state_tree):
                 # different from the previous execution is the jump at the end.
                 # If we did not encounter that state before, we have to create a state.
                 # After that, we can clear the expressions buffer and the jump.
-                if state_tree.states[action.id] == None:
+                if state_tree.states.get(action.id) == None:
                     state = State(action.id, state_expressions)
                     state_tree.states[action.id] = state
                 state_expressions = []
@@ -218,8 +196,12 @@ def visit_solution_new(solution, state_tree):
                 # Same thing as with the fork, except this is just an indicator for a
                 # leaf in the state tree.
                 # Since no other fork occurs afterwards, we can safely ignore all jumps
-                # (except the jump of the last state).
-                if state_tree.states[action.id] == None:
+                # (except the jump of the last state). Since sleigh code is executed
+                # sequentially, we need to add a jump to an end state though.
+                end = SleighExpr()
+                end.expr = "goto <end>;"
+                state_expressions.append(end)
+                if state_tree.states.get(action.id) == None:
                     state = State(action.id, state_expressions)
                     state_tree.states[action.id] = state
                 if last_state_jump != None:
