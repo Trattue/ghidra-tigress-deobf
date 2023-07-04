@@ -17,4 +17,7 @@ class StateTree:
             result += f"{current}"
             queue.extend(map(lambda jump: jump.target_id, current.jumps))
         result += "\n<end>"
+        # In case of jumps etc.:
+        # TODO ghidra doesn't like this
+        result += "\ngoto [VPC];"
         return result

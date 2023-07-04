@@ -14,17 +14,14 @@ def translate_write(target, data):
     result.context.extend(translated_target.context)
     result.context.extend(translated_data.context)
 
-    result.expr = f"{translated_target.expr} = {translated_data.expr};"
-    if target.op != "BVS":
-        # TODO: remove ugly hardcode
-        if target.concrete:
-            if target.args[0] == 0x7FF0000000 - 0x140:
-                result.expr = f"VPC = {translated_data.expr};"
-            elif target.args[0] == 0x7FF0000000 - 0x138:
-                result.expr = f"VSP = {translated_data.expr};"
-
-        else:
-            result.expr = "*" + result.expr
+    # TODO: how to encode data length? check sleigh docs for * operator
+    result.expr = f"*{translated_target.expr} = {translated_data.expr};"
+    # TODO: remove ugly hardcode
+    if target.concrete:
+        if target.args[0] == 0x7FF0000000 - 0x140:
+            result.expr = f"VPC = {translated_data.expr};"
+        elif target.args[0] == 0x7FF0000000 - 0x138:
+            result.expr = f"VSP = {translated_data.expr};"
     return result
 
 
@@ -100,7 +97,7 @@ def _translate_bv(expr) -> SleighExpr:
     result = SleighExpr()
     match expr.op:
         case "BVV":
-            result.expr = f"({hex(expr.args[0])}:{math.ceil(expr.length / 8)})"
+            result.expr = f"{hex(expr.args[0])}:{math.ceil(expr.length / 8)}"
         case "BVS":
             # TODO: remove ugly hardcode
             name = expr.args[0]
@@ -125,7 +122,7 @@ def _translate_bv(expr) -> SleighExpr:
                 t = _translate_expr(e)
                 result.context.extend(t.context)
                 if i != 0:
-                    sub_result += " + "
+                    sub_result += " - "
                 sub_result += t.expr
             result.expr = f"({sub_result})"
         case "SignExt":
