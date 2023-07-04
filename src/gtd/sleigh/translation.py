@@ -5,18 +5,6 @@ import claripy
 from .expression import SleighExpr
 
 
-def translate_jump(target, guard) -> SleighExpr:
-    # TODO: simplify if(1)?
-    # TODO: handle jumps properly with labels (in state tree?)
-    result = SleighExpr()
-    translated_target = _translate_expr(target)
-    translated_guard = _translate_expr(guard)
-    result.context.extend(translated_target.context)
-    result.context.extend(translated_guard.context)
-    result.expr = f"if ({translated_guard.expr}) goto {translated_target.expr};"
-    return result
-
-
 def translate_write(target, data):
     # TODO: handle target assignment properly (addr vs variables) (do we even have variables currently?)
 
@@ -31,9 +19,9 @@ def translate_write(target, data):
         # TODO: remove ugly hardcode
         if target.concrete:
             if target.args[0] == 0x7FF0000000 - 0x140:
-                result.expr = f"vpc = {translated_data.expr};"
+                result.expr = f"VPC = {translated_data.expr};"
             elif target.args[0] == 0x7FF0000000 - 0x138:
-                result.expr = f"vsp = {translated_data.expr};"
+                result.expr = f"VSP = {translated_data.expr};"
 
         else:
             result.expr = "*" + result.expr
@@ -51,7 +39,8 @@ def translate_read(expr, addr) -> SleighExpr | None:
     result = SleighExpr()
     translated_addr = _translate_expr(addr)
     result.context.extend(translated_addr.context)
-    result.expr = f"local {expr.args[0]}: {expr.length} = *{translated_addr.expr}"
+    length = math.ceil(expr.length / 8)
+    result.expr = f"local {expr.args[0]}:{length} = *{translated_addr.expr};"
     return result
 
 
@@ -111,14 +100,14 @@ def _translate_bv(expr) -> SleighExpr:
     result = SleighExpr()
     match expr.op:
         case "BVV":
-            result.expr = f"{hex(expr.args[0])}"
+            result.expr = f"({hex(expr.args[0])}:{math.ceil(expr.length / 8)})"
         case "BVS":
             # TODO: remove ugly hardcode
             name = expr.args[0]
             if name.startswith("vsp"):
-                result.expr = "vsp"
+                result.expr = "VSP"
             elif name.startswith("vpc"):
-                result.expr = "vpc"
+                result.expr = "VPC"
             else:
                 result.expr = f"{expr.args[0]}"
         case "__add__":
@@ -140,7 +129,6 @@ def _translate_bv(expr) -> SleighExpr:
                 sub_result += t.expr
             result.expr = f"({sub_result})"
         case "SignExt":
-            # TODO: handle length properly for sleigh? new variable?
             result.expr = f"sext({_translate_expr(expr.args[1])})"
         case "Concat":
             global concat_tmp_count, concat_result_count
@@ -169,9 +157,14 @@ def _translate_bv(expr) -> SleighExpr:
             tmp_used = []
             for i, e in enumerate(bit_vectors):
                 shift -= e.length
-                result.context.append(
-                    f"local concat_tmp_{concat_tmp_count}: {math.ceil(total_length / 8)} = ({translated_exprs[i].expr}) << {shift};"
-                )
+
+                # Sleigh wants value to be shifted to have the same size as the shifted
+                # value... That's why we use zext(), that should semantically be the
+                # same
+                size = math.ceil(total_length / 8)
+                left = f"local concat_tmp_{concat_tmp_count}:{size}"
+                right = f"zext({translated_exprs[i].expr}) << {shift};"
+                result.context.append(left + " = " + right)
                 tmp_used.append(concat_tmp_count)
                 concat_tmp_count += 1
 
@@ -208,13 +201,13 @@ def _translate_bv(expr) -> SleighExpr:
             result.context.append(f"goto <if_label_{if_label_count + 1}>;")
 
             # Branch 1
-            result.context.append(f"<if_label_{if_label_count}>:")
+            result.context.append(f"<if_label_{if_label_count}>")
             branch1 = _translate_expr(expr.args[1])
             result.context.extend(branch1.context)
             result.context.append(f"if_result_{if_result_count} = {branch1.expr};")
 
             # End
-            result.context.append(f"<if_label_{if_label_count + 1}>:")
+            result.context.append(f"<if_label_{if_label_count + 1}>")
             result.expr = f"if_result_{if_result_count}"
             if_result_count += 1
             if_label_count += 2

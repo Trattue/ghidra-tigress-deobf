@@ -15,7 +15,7 @@ class State:
     def __str__(self) -> str:
         result = ""
         if self.id != 0:
-            result = f"<state_{self.id}>:\n"
+            result = f"<state_{self.id}>\n"
         result += "\n".join(map(lambda se: f"{se}", self.expressions))
         if len(self.jumps) > 0:
             result += "\n"

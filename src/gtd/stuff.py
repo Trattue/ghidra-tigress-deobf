@@ -154,7 +154,7 @@ def visit_solution(solution, state_tree):
                 elif action.action == "read":
                     address = action.addr.to_claripy()
                     data = action.data.to_claripy()
-                    result = gtd.sleigh.translation.translate_write(data, address)
+                    result = gtd.sleigh.translation.translate_read(data, address)
                     if result != None:
                         state_expressions.append(result)
             case gtd.sim_actions.SimActionCall:

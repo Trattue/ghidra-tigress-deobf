@@ -16,5 +16,5 @@ class StateTree:
                 result += "\n"
             result += f"{current}"
             queue.extend(map(lambda jump: jump.target_id, current.jumps))
-        result += "\n<end>:"
+        result += "\n<end>"
         return result
