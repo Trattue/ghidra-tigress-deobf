@@ -177,10 +177,7 @@ def _translate_bv(expr) -> SleighExpr:
 
             # Actual concat
             concat_result = f"local concat_result_{concat_result_count}: {math.ceil(total_length / 8)} = "
-            for i, tmp in enumerate(tmp_used):
-                if i != 0:
-                    concat_result += " | "
-                concat_result += f"concat_tmp_{tmp}"
+            concat_result += " | ".join(map(lambda t: f"concat_tmp_{t}", tmp_used))
             concat_result += ";"
             concat_result_count += 1
             result.context.append(concat_result)

@@ -16,8 +16,10 @@ def do_stuff(path, handlers):
         visit_handler(project, handler)
 
 
-def visit_handler(project: angr.Project, handler: Handler):  # Clean up globals
+def visit_handler(project: angr.Project, handler: Handler):
     global fork_id, read_expr_count
+
+    # Clean up globals
     fork_id = 0
     read_expr_count = 0
 
