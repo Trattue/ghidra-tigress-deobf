@@ -2,22 +2,31 @@ from gtd.state.state import State
 
 
 class StateTree:
-    states: dict[int, State]
+    """
+    A graph, more specifically a tree, of states connected by jumps.
+
+    Attributes:
+    -----------
+    states : dict[int, State]
+        All states in the state tree, indexed by their id.
+    """
+
+    initial_state_id = 0
 
     def __init__(self) -> None:
-        self.states = {}
+        self.states: dict[int, State] = {}
 
     def __str__(self) -> str:
-        result = ""
-        queue = [0]
+        formatted = list(map(lambda state: f"{state}", list(self.__iter__())))
+        formatted.append("<end>")
+        # TODO ghidra doesn't like this goto... fix vpc will maybe fix this?
+        formatted.append("goto [VPC];")
+        return "\n".join(formatted)
+
+    def __iter__(self):
+        # Simple BFS iteration.
+        queue = [self.initial_state_id]
         while len(queue) > 0:
             current = self.states[queue.pop(0)]
-            if current.id != 0:
-                result += "\n"
-            result += f"{current}"
+            yield current
             queue.extend(map(lambda jump: jump.target_id, current.jumps))
-        result += "\n<end>"
-        # In case of jumps etc.:
-        # TODO ghidra doesn't like this
-        result += "\ngoto [VPC];"
-        return result

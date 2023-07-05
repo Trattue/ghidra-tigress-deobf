@@ -2,10 +2,18 @@ from gtd.sleigh.expression import SleighExpr
 
 
 class StateJump:
-    target_id: int
-    condition: SleighExpr
+    """
+    A jump from one state to another.
 
-    def __init__(self, target_id, condition):
+    Parameters:
+    -----------
+    target_id : int
+        The id of the jump target state.
+    condition : SleighExpr
+        The condition upon which the jump is executed.
+    """
+
+    def __init__(self, target_id: int, condition: SleighExpr):
         self.target_id = target_id
         self.condition = condition
 

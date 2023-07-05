@@ -15,13 +15,15 @@ def translate_write(target, data):
     result.context.extend(translated_data.context)
 
     # TODO: how to encode data length? check sleigh docs for * operator
-    result.expr = f"*{translated_target.expr} = {translated_data.expr};"
+    result.expression = (
+        f"*{translated_target.expression} = {translated_data.expression};"
+    )
     # TODO: remove ugly hardcode
     if target.concrete:
         if target.args[0] == 0x7FF0000000 - 0x140:
-            result.expr = f"VPC = {translated_data.expr};"
+            result.expression = f"VPC = {translated_data.expression};"
         elif target.args[0] == 0x7FF0000000 - 0x138:
-            result.expr = f"VSP = {translated_data.expr};"
+            result.expression = f"VSP = {translated_data.expression};"
     return result
 
 
@@ -37,13 +39,15 @@ def translate_read(expr, addr) -> SleighExpr | None:
     translated_addr = _translate_expr(addr)
     result.context.extend(translated_addr.context)
     length = math.ceil(expr.length / 8)
-    result.expr = f"local {expr.args[0]}:{length} = *{translated_addr.expr};"
+    result.expression = (
+        f"local {expr.args[0]}:{length} = *{translated_addr.expression};"
+    )
     return result
 
 
 def translate_call(target):
     result = SleighExpr()
-    result.expr = f"call {hex(target)};"
+    result.expression = f"call {hex(target)};"
     return result
 
 
@@ -55,7 +59,7 @@ def _translate_expr(expr) -> SleighExpr:
             return _translate_bv(expr)
         case _:
             result = SleighExpr()
-            result.expr = f"[NOT IMPLEMENTED: {type(expr)}]"
+            result.expression = f"[NOT IMPLEMENTED: {type(expr)}]"
             return result
 
 
@@ -63,27 +67,27 @@ def _translate_bool(expr) -> SleighExpr:
     result = SleighExpr()
     match expr.op:
         case "BoolV":
-            result.expr = "1" if expr.args[0] else "0"
+            result.expression = "1" if expr.args[0] else "0"
         case "__eq__":
             arg0 = _translate_expr(expr.args[0])
             arg1 = _translate_expr(expr.args[1])
             result.context.extend(arg0.context)
             result.context.extend(arg1.context)
-            result.expr = f"({arg0.expr}) == ({arg1.expr})"
+            result.expression = f"({arg0.expression}) == ({arg1.expression})"
         case "__ne__":
             arg0 = _translate_expr(expr.args[0])
             arg1 = _translate_expr(expr.args[1])
             result.context.extend(arg0.context)
             result.context.extend(arg1.context)
-            result.expr = f"({arg0.expr}) != ({arg1.expr})"
+            result.expression = f"({arg0.expression}) != ({arg1.expression})"
         case "SLT":
             arg0 = _translate_expr(expr.args[0])
             arg1 = _translate_expr(expr.args[1])
             result.context.extend(arg0.context)
             result.context.extend(arg1.context)
-            result.expr = f"({arg0.expr}) s< ({arg1.expr})"
+            result.expression = f"({arg0.expression}) s< ({arg1.expression})"
         case _:
-            result.expr = f"[NOT IMPLEMENTED BOOL: {expr.op}]"
+            result.expression = f"[NOT IMPLEMENTED BOOL: {expr.op}]"
     return result
 
 
@@ -97,16 +101,16 @@ def _translate_bv(expr) -> SleighExpr:
     result = SleighExpr()
     match expr.op:
         case "BVV":
-            result.expr = f"{hex(expr.args[0])}:{math.ceil(expr.length / 8)}"
+            result.expression = f"{hex(expr.args[0])}:{math.ceil(expr.length / 8)}"
         case "BVS":
             # TODO: remove ugly hardcode
             name = expr.args[0]
             if name.startswith("vsp"):
-                result.expr = "VSP"
+                result.expression = "VSP"
             elif name.startswith("vpc"):
-                result.expr = "VPC"
+                result.expression = "VPC"
             else:
-                result.expr = f"{expr.args[0]}"
+                result.expression = f"{expr.args[0]}"
         case "__add__":
             add_result = ""
             for i, e in enumerate(expr.args):
@@ -114,8 +118,8 @@ def _translate_bv(expr) -> SleighExpr:
                 result.context.extend(t.context)
                 if i != 0:
                     add_result += " + "
-                add_result += t.expr
-            result.expr = f"({add_result})"
+                add_result += t.expression
+            result.expression = f"({add_result})"
         case "__sub__":
             sub_result = ""
             for i, e in enumerate(expr.args):
@@ -123,10 +127,10 @@ def _translate_bv(expr) -> SleighExpr:
                 result.context.extend(t.context)
                 if i != 0:
                     sub_result += " - "
-                sub_result += t.expr
-            result.expr = f"({sub_result})"
+                sub_result += t.expression
+            result.expression = f"({sub_result})"
         case "SignExt":
-            result.expr = f"sext({_translate_expr(expr.args[1])})"
+            result.expression = f"sext({_translate_expr(expr.args[1])})"
         case "Concat":
             global concat_tmp_count, concat_result_count
 
@@ -160,7 +164,7 @@ def _translate_bv(expr) -> SleighExpr:
                 # same
                 size = math.ceil(total_length / 8)
                 left = f"local concat_tmp_{concat_tmp_count}:{size}"
-                right = f"zext({translated_exprs[i].expr}) << {shift};"
+                right = f"zext({translated_exprs[i].expression}) << {shift};"
                 result.context.append(left + " = " + right)
                 tmp_used.append(concat_tmp_count)
                 concat_tmp_count += 1
@@ -171,7 +175,7 @@ def _translate_bv(expr) -> SleighExpr:
             concat_result += ";"
             concat_result_count += 1
             result.context.append(concat_result)
-            result.expr = f"(concat_result_{concat_result_count - 1})"
+            result.expression = f"(concat_result_{concat_result_count - 1})"
         case "If":
             global if_result_count, if_label_count
 
@@ -189,25 +193,31 @@ def _translate_bv(expr) -> SleighExpr:
                 # TODO: check if 1bit local variable is correct (do we have to expand it when assigning to larger variable?)
                 f"local if_result_{if_result_count}: {math.ceil(expr.length / 8)} = 0;"
             )
-            result.context.append(f"if ({cond.expr}) goto <if_label_{if_label_count}>;")
+            result.context.append(
+                f"if ({cond.expression}) goto <if_label_{if_label_count}>;"
+            )
 
             # Branch 2
             branch2 = _translate_expr(expr.args[2])
             result.context.extend(branch2.context)
-            result.context.append(f"if_result_{if_result_count} = {branch2.expr};")
+            result.context.append(
+                f"if_result_{if_result_count} = {branch2.expression};"
+            )
             result.context.append(f"goto <if_label_{if_label_count + 1}>;")
 
             # Branch 1
             result.context.append(f"<if_label_{if_label_count}>")
             branch1 = _translate_expr(expr.args[1])
             result.context.extend(branch1.context)
-            result.context.append(f"if_result_{if_result_count} = {branch1.expr};")
+            result.context.append(
+                f"if_result_{if_result_count} = {branch1.expression};"
+            )
 
             # End
             result.context.append(f"<if_label_{if_label_count + 1}>")
-            result.expr = f"if_result_{if_result_count}"
+            result.expression = f"if_result_{if_result_count}"
             if_result_count += 1
             if_label_count += 2
         case _:
-            result.expr = f"[NOT IMPLEMENTED BV: {expr.op}]"
+            result.expression = f"[NOT IMPLEMENTED BV: {expr.op}]"
     return result

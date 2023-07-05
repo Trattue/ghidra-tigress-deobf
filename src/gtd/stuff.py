@@ -2,9 +2,9 @@ import angr
 import claripy
 
 import gtd.sim_actions
-from gtd.sleigh.expression import SleighExpr
 import gtd.sleigh.translation
 from gtd.handler import Handler
+from gtd.sleigh.expression import SleighExpr
 from gtd.state.jump import StateJump
 from gtd.state.state import State
 from gtd.state.tree import StateTree
@@ -201,7 +201,7 @@ def visit_solution(solution, state_tree):
                 # (except the jump of the last state). Since sleigh code is executed
                 # sequentially, we need to add a jump to an end state though.
                 end = SleighExpr()
-                end.expr = "goto <end>;"
+                end.expression = "goto <end>;"
                 state_expressions.append(end)
                 if state_tree.states.get(action.id) == None:
                     state = State(action.id, state_expressions)

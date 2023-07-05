@@ -1,16 +1,20 @@
 class SleighExpr:
-    """An expression translated to p-code."""
+    """
+    An expression translated to p-code.
 
-    context: list[str]
-    expr: str
+    Attributes:
+    -----------
+    expression : str
+        P-code string containing the translated expression. Empty by default.
+    context : list[str]
+        List of p-code strings needed before the expression. For
+        example, helper variables used in the experssion can be defined
+        here. Empty by default.
+    """
 
     def __init__(self):
-        self.context = []
-        self.expr = ""
+        self.expression: str = ""
+        self.context: list[str] = []
 
     def __str__(self) -> str:
-        result = ""
-        for h in self.context:
-            result = result + h + "\n"
-        result = result + self.expr
-        return result
+        return "\n".join(self.context + [self.expression])
