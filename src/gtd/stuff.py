@@ -160,6 +160,11 @@ def visit_solution(solution, state_tree):
             case gtd.sim_actions.SimActionCall:
                 # Same deal as reads and writes, simply append it to the expression
                 # buffer.
+                # We have to keep the calling convention in mind, though. In our case,
+                # the return address is pushed to the stack... Since we don't actually
+                # follow calls, it serves no use and we need to remove it. That push
+                # _should_ be the last expression before the call, so let's remove that.
+                state_expressions.pop(-1)
                 result = gtd.sleigh.translation.translate_call(action.target)
                 state_expressions.append(result)
             case gtd.sim_actions.SimActionJump:
