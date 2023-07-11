@@ -17,10 +17,12 @@ class StateTree:
         self.states: dict[int, State] = {}
 
     def __str__(self) -> str:
-        formatted = list(map(lambda state: f"{state}", list(self.__iter__())))
+        formatted = ["local vpc: 8 = inst_start;", "local vsp:8 = VSP;"]
+        formatted.extend(map(lambda state: f"{state}", list(self.__iter__())))
         formatted.append("<end>")
         # TODO ghidra doesn't like this goto... fix vpc will maybe fix this?
-        formatted.append("goto [VPC];")
+        formatted.append("VSP = vsp;")
+        formatted.append("goto [vpc];")
         return "\n".join(formatted)
 
     def __iter__(self):

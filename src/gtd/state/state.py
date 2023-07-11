@@ -31,7 +31,9 @@ class State:
         self.jumps: list[StateJump] = []
 
     def __str__(self) -> str:
-        initial_label = f"<state_{self.id}>"
+        initial_label = ""
+        if self.id != 0:
+            initial_label += f"<state_{self.id}>\n"
         expressions = list(map(lambda se: f"{se}", self.expressions))
         jumps = list(map(lambda se: f"{se}", self.jumps))
-        return "\n".join([initial_label] + expressions + jumps)
+        return initial_label + "\n".join(expressions + jumps)

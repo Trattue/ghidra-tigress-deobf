@@ -1,7 +1,6 @@
 import math
 
 import claripy
-
 from gtd.sleigh.expression import SleighExpr
 
 
@@ -11,15 +10,18 @@ def translate_write(address, data):
     translated_data = _translate_expression(data)
     result.context.extend(translated_address.context)
     result.context.extend(translated_data.context)
-    result.expression = (
-        f"*{translated_address.expression} = {translated_data.expression};"
-    )
+    left_side = f"*{translated_address.expression} = "
     # TODO: remove ugly hardcode
     if address.concrete:
+        # Here, we use local variables for vpc and vsp for writing. We
+        # will save the values to the registers at the end of the
+        # handler.
         if address.args[0] == 0x7FF0000000 - 0x140:
-            result.expression = f"VPC = {translated_data.expression};"
+            left_side = f"vpc = "
         elif address.args[0] == 0x7FF0000000 - 0x138:
-            result.expression = f"VSP = {translated_data.expression};"
+            left_side = f"vsp = "
+    right_side = f"{translated_data.expression};"
+    result.expression = left_side + right_side
     return result
 
 
@@ -35,9 +37,20 @@ def translate_read(data, address) -> SleighExpr | None:
     translated_address = _translate_expression(address)
     result.context.extend(translated_address.context)
     length = math.ceil(data.length / 8)
-    result.expression = (
-        f"local {data.args[0]}:{length} = *{translated_address.expression};"
-    )
+    left_side = f"local {data.args[0]}:{length} = "
+    right_side = f"*{translated_address.expression};"
+
+    # Hardcoded patch to support one argument...
+    # TODO: make this dynamic (config!)
+    tmp = claripy.simplify(address - 1)
+    if (
+        isinstance(tmp, claripy.ast.bv.BV)
+        and tmp.op == "BVS"
+        and tmp.args[0].startswith("vpc")
+    ):
+        right_side = "imm32;"
+
+    result.expression = left_side + right_side
     return result
 
 
@@ -104,7 +117,7 @@ def _translate_bv(expr) -> SleighExpr:
             if name.startswith("vsp"):
                 result.expression = "VSP"
             elif name.startswith("vpc"):
-                result.expression = "VPC"
+                result.expression = "inst_start"
             else:
                 result.expression = f"{expr.args[0]}"
         case "__add__":
