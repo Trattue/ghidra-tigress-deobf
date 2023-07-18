@@ -3,7 +3,7 @@ import argparse
 from gtd.handler import Handler
 from gtd.stuff import do_stuff
 
-handlers = [
+handlers_test1_fib = [
     # Size 5, load string (no cond)
     Handler(0xD2, 0x4011E4, 0x40123E),
     # Size 5, relative jump (no cond)
@@ -25,6 +25,24 @@ handlers = [
     Handler(0xF8, 0x4015DE, 0x40162D),
 ]
 
+handlers_test1_fac = [
+    Handler(0xB7, 0x401671, 0x4016CA),
+    Handler(0x7E, 0x4016D2, 0x401700),
+    Handler(0xB2, 0x40170B, 0x401732),
+    Handler(0xF2, 0x40173D, 0x401794),
+    Handler(0xF9, 0x40179F, 0x4017B1),
+    Handler(0x3, 0x4017BC, 0x40181D),
+    Handler(0x3E, 0x401828, 0x401865),
+    Handler(0xA8, 0x401870, 0x4018BC),
+    Handler(0xAD, 0x4018C7, 0x401921),
+    Handler(0x14, 0x40192C, 0x40198D),
+    Handler(0xF3, 0x401998, 0x4019D7),
+    Handler(0x12, 0x4019E2, 0x401A08),
+    Handler(0xAF, 0x401A13, 0x401A5D),
+    Handler(0x99, 0x401A68, 0x401AB1),
+    Handler(0xC9, 0x401AC0, 0x401B0F),
+]
+
 
 def main():
     p = argparse.ArgumentParser()
@@ -33,4 +51,4 @@ def main():
     args = p.parse_args()
     # TODO: do stuff with args.sample and args.config
     # TODO: use configparser
-    do_stuff(args.path, handlers)
+    do_stuff(args.path, handlers_test1_fac)

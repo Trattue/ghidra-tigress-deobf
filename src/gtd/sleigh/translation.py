@@ -95,6 +95,12 @@ def _translate_bool(expression) -> SleighExpr:
             result.context.extend(arg0.context)
             result.context.extend(arg1.context)
             result.expression = f"({arg0.expression}) s< ({arg1.expression})"
+        case "SLE":
+            arg0 = _translate_expression(expression.args[0])
+            arg1 = _translate_expression(expression.args[1])
+            result.context.extend(arg0.context)
+            result.context.extend(arg1.context)
+            result.expression = f"({arg0.expression}) s<= ({arg1.expression})"
         case _:
             result.expression = f"[NOT IMPLEMENTED BOOL: {expression.op}]"
     return result
@@ -132,6 +138,12 @@ def _translate_bv(expr) -> SleighExpr:
                 result.context.extend(t.context)
             expressions = list(map(lambda e: e.expression, translated))
             result.expression = f"({' - '.join(expressions)})"
+        case "__mul__":
+            translated = list(map(lambda e: _translate_expression(e), expr.args))
+            for t in translated:
+                result.context.extend(t.context)
+            expressions = list(map(lambda e: e.expression, translated))
+            result.expression = f"({' * '.join(expressions)})"
         case "SignExt":
             result.expression = f"sext({_translate_expression(expr.args[1])})"
         case "Concat":
