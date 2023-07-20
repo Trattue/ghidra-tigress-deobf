@@ -22,7 +22,6 @@ class StateTree:
         formatted.append("<end>")
         # TODO ghidra doesn't like this goto... fix vpc will maybe fix this?
         formatted.append("VSP = vsp;")
-        formatted.append("goto [vpc];")
         return "\n".join(formatted)
 
     def __iter__(self):

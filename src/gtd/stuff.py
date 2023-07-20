@@ -34,7 +34,7 @@ def visit_handler(project: angr.Project, handler: Handler):
         a = gtd.sim_actions.SimActionEnd(sol, fork_id)
         sol.history.add_action(a)
         fork_id += 1
-        visit_solution(sol, state_tree)
+        visit_solution(sol, state_tree, handler)
 
     hex_opcode = hex(handler.opcode)
     if handler.has_argument:
@@ -137,7 +137,7 @@ def hook_mem_read(state):
     read_expr_count += 1
 
 
-def visit_solution(solution, state_tree):
+def visit_solution(solution, state_tree, handler):
     actions = solution.history.actions.hardcopy
 
     state_expressions = []
@@ -212,7 +212,22 @@ def visit_solution(solution, state_tree):
                 # (except the jump of the last state). Since sleigh code is executed
                 # sequentially, we need to add a jump to an end state though.
                 end = SleighExpr()
-                end.expression = "goto <end>;"
+                # TODO make this whole thing actually good code :vomit:
+                opcode_size = 5 if handler.has_argument else 1
+                tmp = claripy.simplify(
+                    # TODO: fix ugly vpc hack
+                    solution.mem[VPC_ADDRESS].uint64_t.resolved
+                    - opcode_size
+                )
+                if (
+                    isinstance(tmp, claripy.ast.bv.BV)
+                    and tmp.op == "BVS"
+                    and tmp.args[0].startswith("vpc")
+                ):
+                    # TODO end label might get unused...
+                    end.expression = "VSP = vsp;\ngoto <end>;"
+                else:
+                    end.expression = "goto [vpc];"
                 state_expressions.append(end)
                 if state_tree.states.get(action.id) == None:
                     state = State(action.id, state_expressions)
