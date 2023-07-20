@@ -183,7 +183,7 @@ def _translate_bv(expr) -> SleighExpr:
                 concat_tmp_count += 1
 
             # Actual concat
-            concat_result = f"local concat_result_{concat_result_count}: {math.ceil(expr.length / 8)} = "
+            concat_result = f"local concat_result_{concat_result_count}:{math.ceil(expr.length / 8)} = "
             concat_result += " | ".join(map(lambda t: f"concat_tmp_{t}", tmp_used))
             concat_result += ";"
             concat_result_count += 1
@@ -203,7 +203,7 @@ def _translate_bv(expr) -> SleighExpr:
             cond = _translate_expression(expr.args[0])
             result.context.extend(cond.context)
             result.context.append(
-                f"local if_result_{if_result_count}: {math.ceil(expr.length / 8)} = 0;"
+                f"local if_result_{if_result_count}:{math.ceil(expr.length / 8)} = 0;"
             )
             result.context.append(
                 f"if ({cond.expression}) goto <if_label_{if_label_count}>;"

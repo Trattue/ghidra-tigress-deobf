@@ -17,7 +17,7 @@ class StateTree:
         self.states: dict[int, State] = {}
 
     def __str__(self) -> str:
-        formatted = ["local vpc: 8 = inst_start;", "local vsp:8 = VSP;"]
+        formatted = ["local vpc:8 = inst_start;", "local vsp:8 = VSP;"]
         formatted.extend(map(lambda state: f"{state}", list(self.__iter__())))
         formatted.append("<end>")
         # TODO ghidra doesn't like this goto... fix vpc will maybe fix this?
