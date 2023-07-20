@@ -23,12 +23,11 @@ def visit_handler(project: angr.Project, handler: Handler):
     fork_id = 0
     read_expr_count = 0
 
-    print(f"\n# Handler {hex(handler.opcode)}")
     simulation = create_simulation(project, handler.start_addr)
     simulation.explore(find=handler.end_addr, num_find=999)
 
     for err in simulation.errored:
-        print(f"ERROR: {err}")
+        print(f"ERROR in handler {hex(handler.opcode)}: {err}")
 
     state_tree = StateTree()
     for sol in simulation.found:
@@ -36,7 +35,14 @@ def visit_handler(project: angr.Project, handler: Handler):
         sol.history.add_action(a)
         fork_id += 1
         visit_solution(sol, state_tree)
+
+    hex_opcode = hex(handler.opcode)
+    if handler.has_argument:
+        print(f"\n:vm_{hex_opcode} imm32 is op={hex_opcode}; imm32 {{")
+    else:
+        print(f"\n:vm_{hex_opcode} is op={hex_opcode} {{")
     print(state_tree)
+    print("}")
 
 
 RBP_ADDRESS = 0x7FF0000000
