@@ -146,6 +146,8 @@ def visit_solution(solution, state_tree, handler):
     last_state_id = 0
     last_state_jump = None
 
+    # TODO: xtea 0x1f: check for addition of multiple jumps to the same state and multiple same states
+
     for action in actions:
         match type(action):
             case angr.state_plugins.SimActionData:
