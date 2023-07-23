@@ -21,19 +21,19 @@ class State:
 
     Attributes:
     -----------
-    jumps : list[StateJump]
-        List of jumps leading to another state.
+    jumps : dict[int, StateJump]
+        Jumps to other states. Key is the target state id.
     """
 
     def __init__(self, id: int, expressions: list[SleighExpr]):
         self.id = id
         self.expressions = expressions
-        self.jumps: list[StateJump] = []
+        self.jumps: dict[int, StateJump] = {}
 
     def __str__(self) -> str:
         initial_label = ""
         if self.id != 0:
             initial_label += f"<state_{self.id}>\n"
         expressions = list(map(lambda se: f"{se}", self.expressions))
-        jumps = list(map(lambda se: f"{se}", self.jumps))
+        jumps = list(map(lambda se: f"{se}", self.jumps.values()))
         return initial_label + "\n".join(expressions + jumps)

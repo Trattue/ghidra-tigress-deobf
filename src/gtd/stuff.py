@@ -180,7 +180,6 @@ def visit_solution(solution, state_tree, handler):
                 # fork the current state. Therefore, we can safely ignore any jumps
                 # apart from the last jump before the fork. This means we can overwrite
                 # the stored jump until we encounter a fork.
-                # TODO should be correct, but discuss with Fabian
                 state_jump = gtd.sleigh.translation._translate_bool(action.guard)
             case gtd.sim_actions.SimActionFork:
                 # We know that the last jump before a fork is different between
@@ -192,7 +191,7 @@ def visit_solution(solution, state_tree, handler):
                 # correct target.
                 if last_state_jump != None:
                     jump = StateJump(action.id, last_state_jump)
-                    state_tree.states[last_state_id].jumps.append(jump)
+                    state_tree.states[last_state_id].jumps[action.id] = jump
                     last_state_jump = None
                 last_state_id = action.id
                 last_state_jump = state_jump
@@ -236,5 +235,5 @@ def visit_solution(solution, state_tree, handler):
                     state_tree.states[action.id] = state
                 if last_state_jump != None:
                     jump = StateJump(action.id, last_state_jump)
-                    state_tree.states[last_state_id].jumps.append(jump)
+                    state_tree.states[last_state_id].jumps[last_state_jump] = jump
                     last_state_jump = None

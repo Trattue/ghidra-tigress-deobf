@@ -30,4 +30,4 @@ class StateTree:
         while len(queue) > 0:
             current = self.states[queue.pop(0)]
             yield current
-            queue.extend(map(lambda jump: jump.target_id, current.jumps))
+            queue.extend(map(lambda jump: jump.target_id, current.jumps.values()))
