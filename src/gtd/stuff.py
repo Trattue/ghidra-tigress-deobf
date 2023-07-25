@@ -10,22 +10,22 @@ from gtd.state.state import State
 from gtd.state.tree import StateTree
 
 
-def do_stuff(path, handlers):
+def do_stuff(path, config):
     project = angr.Project(path, load_options={"auto_load_libs": False})
 
     # Operand sizes
     sizes: set[int] = set()
-    for handler in filter(lambda h: h.argument_size != 0, handlers):
+    for handler in filter(lambda h: h.argument_size != 0, config.handlers):
         sizes.add(handler.argument_size)
     for size in sizes:
         bits = size * 8
         print(f"define token I{bits}({bits}) imm{bits}=(0,{bits - 1});")
 
-    for handler in handlers:
-        visit_handler(project, handler)
+    for handler in config.handlers:
+        visit_handler(project, handler, config)
 
 
-def visit_handler(project: angr.Project, handler: Handler):
+def visit_handler(project: angr.Project, handler: Handler, config):
     global fork_id, read_expr_count
 
     # Clean up globals
@@ -43,7 +43,7 @@ def visit_handler(project: angr.Project, handler: Handler):
         a = gtd.sim_actions.SimActionEnd(sol, fork_id)
         sol.history.add_action(a)
         fork_id += 1
-        visit_solution(sol, state_tree, handler)
+        visit_solution(sol, state_tree, handler, config)
 
     hex_opcode = hex(handler.opcode)
     if handler.argument_size != 0:
@@ -147,7 +147,7 @@ def hook_mem_read(state):
     read_expr_count += 1
 
 
-def visit_solution(solution, state_tree, handler):
+def visit_solution(solution, state_tree, handler, config):
     actions = solution.history.actions.hardcopy
 
     state_expressions = []
@@ -181,7 +181,23 @@ def visit_solution(solution, state_tree, handler):
                 # follow calls, it serves no use and we need to remove it. That push
                 # _should_ be the last expression before the call, so let's remove that.
                 state_expressions.pop(-1)
-                result = gtd.sleigh.translation.translate_call(action.target)
+                functions = config.functions
+                func = list(filter(lambda f: f.address == action.target, functions))[0]
+                remaining = func.arguments
+                cc = [
+                    action.state.regs.rdi,
+                    action.state.regs.rsi,
+                    action.state.regs.rdx,
+                    action.state.regs.rcx,
+                    action.state.regs.r8,
+                    action.state.regs.r9,
+                ]
+                arguments = []
+                while remaining > 0:
+                    arguments.append(cc[func.arguments - remaining])
+                    remaining -= 1
+
+                result = gtd.sleigh.translation.translate_call(action.target, arguments)
                 state_expressions.append(result)
             case gtd.sim_actions.SimActionJump:
                 # Whenever there is a condition that is not trivially true, angr will

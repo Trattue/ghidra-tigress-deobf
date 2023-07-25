@@ -54,8 +54,12 @@ def translate_read(data, address) -> SleighExpr | None:
     return result
 
 
-def translate_call(target):
+def translate_call(target, arguments):
     result = SleighExpr()
+    for i, arg in enumerate(arguments):
+        expr = _translate_expression(arg)
+        result.context.extend(expr.context)
+        result.context.append(f"param{i + 1} = {expr.expression};")
     result.expression = f"call {hex(target)};"
     return result
 
@@ -145,7 +149,7 @@ def _translate_bv(expr) -> SleighExpr:
                 and c != 0x7FF0000000 - 0x138
             ):
                 # TODO: currently: locals - XXX; idea: locals + YYY
-                result.expression = f"locals - {hex(locals_addr - c)}"
+                result.expression = f"locals - {hex(c - locals_addr)}"
             else:
                 result.expression = f"{hex(expr.args[0])}:{math.ceil(expr.length / 8)}"
         case "BVS":
