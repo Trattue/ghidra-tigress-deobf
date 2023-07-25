@@ -48,7 +48,7 @@ def translate_read(data, address) -> SleighExpr | None:
         and tmp.op == "BVS"
         and tmp.args[0].startswith("vpc")
     ):
-        right_side = "imm32;"
+        right_side = f"imm{data.length};"
 
     result.expression = left_side + right_side
     return result
@@ -122,13 +122,32 @@ concat_tmp_count = 0
 concat_result_count = 0
 if_result_count = 0
 if_label_count = 0
+extract_count = 0
+zext_count = 0
+sext_count = 0
+
+
+# TODO: config option for locals
+locals_addr = 0x7FEFFFFFD0
 
 
 def _translate_bv(expr) -> SleighExpr:
     result = SleighExpr()
     match expr.op:
         case "BVV":
-            result.expression = f"{hex(expr.args[0])}:{math.ceil(expr.length / 8)}"
+            c = expr.args[0]
+            if c == locals_addr:
+                result.expression = "locals"
+            elif (
+                c & 0x7FFFFFFFFF == c
+                and c & 0xFFFFFFFF != c
+                and c != 0x7FF0000000 - 0x140
+                and c != 0x7FF0000000 - 0x138
+            ):
+                # TODO: currently: locals - XXX; idea: locals + YYY
+                result.expression = f"locals - {hex(locals_addr - c)}"
+            else:
+                result.expression = f"{hex(expr.args[0])}:{math.ceil(expr.length / 8)}"
         case "BVS":
             # TODO: remove ugly hardcode
             name = expr.args[0]
@@ -181,19 +200,40 @@ def _translate_bv(expr) -> SleighExpr:
             result.context.extend(arg1.context)
             result.expression = f"{arg0.expression} >> {arg1.expression}"
         case "ZeroExt":
+            global zext_count
+
             translated = _translate_expression(expr.args[1])
             result.context.extend(translated.context)
-            result.expression = f"zext({translated.expression})"
+            result.context.append(
+                f"local zext_{zext_count}:{math.ceil(expr.length / 8)} = zext({translated.expression});"
+            )
+            result.expression = f"zext_{zext_count}"
+            zext_count += 1
         case "SignExt":
+            global sext_count
+
             translated = _translate_expression(expr.args[1])
             result.context.extend(translated.context)
-            result.expression = f"sext({translated.expression})"
+            result.context.append(
+                f"local sext_{sext_count}:{math.ceil(expr.length / 8)} = sext({translated.expression});"
+            )
+            result.expression = f"sext_{sext_count}"
+            sext_count += 1
         case "Extract":
+            global extract_count
+
             translated = _translate_expression(expr.args[2])
             result.context.extend(translated.context)
-            result.expression = (
-                f"({translated.expression})[{expr.args[0]},{expr.args[1]}]"
+
+            result.context.append(
+                f"local extract_{extract_count}:{math.ceil(expr.args[2].length / 8)} = {translated.expression};"
             )
+            least_significant_bit = expr.args[1]
+            bit_count = expr.args[0] - least_significant_bit
+            result.expression = (
+                f"extract_{extract_count}[{least_significant_bit},{bit_count}]"
+            )
+            extract_count += 1
         case "Concat":
             global concat_tmp_count, concat_result_count
 

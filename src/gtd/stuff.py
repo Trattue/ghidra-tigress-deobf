@@ -3,7 +3,7 @@ import claripy
 
 import gtd.sim_actions
 import gtd.sleigh.translation
-from gtd.handler import Handler
+from gtd.config.handler import Handler
 from gtd.sleigh.expression import SleighExpr
 from gtd.state.jump import StateJump
 from gtd.state.state import State
@@ -12,6 +12,15 @@ from gtd.state.tree import StateTree
 
 def do_stuff(path, handlers):
     project = angr.Project(path, load_options={"auto_load_libs": False})
+
+    # Operand sizes
+    sizes: set[int] = set()
+    for handler in filter(lambda h: h.argument_size != 0, handlers):
+        sizes.add(handler.argument_size)
+    for size in sizes:
+        bits = size * 8
+        print(f"define token I{bits}({bits}) imm{bits}=(0,{bits - 1});")
+
     for handler in handlers:
         visit_handler(project, handler)
 
@@ -37,8 +46,9 @@ def visit_handler(project: angr.Project, handler: Handler):
         visit_solution(sol, state_tree, handler)
 
     hex_opcode = hex(handler.opcode)
-    if handler.has_argument:
-        print(f"\n:vm_{hex_opcode} imm32 is op={hex_opcode}; imm32 {{")
+    if handler.argument_size != 0:
+        arg_bits = handler.argument_size * 8
+        print(f"\n:vm_{hex_opcode} imm{arg_bits} is op={hex_opcode}; imm{arg_bits} {{")
     else:
         print(f"\n:vm_{hex_opcode} is op={hex_opcode} {{")
     print(state_tree)
@@ -146,8 +156,6 @@ def visit_solution(solution, state_tree, handler):
     last_state_id = 0
     last_state_jump = None
 
-    # TODO: xtea 0x1f: check for addition of multiple jumps to the same state and multiple same states
-
     for action in actions:
         match type(action):
             case angr.state_plugins.SimActionData:
@@ -214,7 +222,7 @@ def visit_solution(solution, state_tree, handler):
                 # sequentially, we need to add a jump to an end state though.
                 end = SleighExpr()
                 # TODO make this whole thing actually good code :vomit:
-                opcode_size = 5 if handler.has_argument else 1
+                opcode_size = 1 + handler.argument_size
                 tmp = claripy.simplify(
                     # TODO: fix ugly vpc hack
                     solution.mem[VPC_ADDRESS].uint64_t.resolved
@@ -228,7 +236,7 @@ def visit_solution(solution, state_tree, handler):
                     # TODO end label might get unused...
                     end.expression = "VSP = vsp;\ngoto <end>;"
                 else:
-                    end.expression = "goto [vpc];"
+                    end.expression = "VSP = vsp;\ngoto [vpc];"
                 state_expressions.append(end)
                 if state_tree.states.get(action.id) == None:
                     state = State(action.id, state_expressions)

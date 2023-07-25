@@ -19,9 +19,8 @@ class StateTree:
     def __str__(self) -> str:
         formatted = ["local vpc:8 = inst_start;", "local vsp:8 = VSP;"]
         formatted.extend(map(lambda state: f"{state}", list(self.__iter__())))
+        # TODO: end might not be used...
         formatted.append("<end>")
-        # TODO ghidra doesn't like this goto... fix vpc will maybe fix this?
-        formatted.append("VSP = vsp;")
         return "\n".join(formatted)
 
     def __iter__(self):
