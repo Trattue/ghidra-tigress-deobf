@@ -142,14 +142,17 @@ def _translate_bv(expr) -> SleighExpr:
             c = expr.args[0]
             if c == locals_addr:
                 result.expression = "locals"
+            elif c == 0x7FF0000000 - 0x144:
+                # fib only
+                # TODO: config option for vm arguments
+                result.expression = f"internal1"
             elif (
                 c & 0x7FFFFFFFFF == c
                 and c & 0xFFFFFFFF != c
                 and c != 0x7FF0000000 - 0x140
                 and c != 0x7FF0000000 - 0x138
             ):
-                # TODO: currently: locals - XXX; idea: locals + YYY
-                result.expression = f"locals - {hex(c - locals_addr)}"
+                result.expression = f"locals + {hex(c - locals_addr)}"
             else:
                 result.expression = f"{hex(expr.args[0])}:{math.ceil(expr.length / 8)}"
         case "BVS":

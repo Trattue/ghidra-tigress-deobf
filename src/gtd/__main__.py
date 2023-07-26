@@ -45,7 +45,7 @@ sample1_fib = Config(
     [Function(0x401030, 3)],
 )
 
-handlers_sample1_xtea = Config(
+sample1_xtea = Config(
     [
         Handler(0xEE, 0x401171, 0x40119A),
         Handler(0xFA, 0x4011A2, 0x4011EF),
