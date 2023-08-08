@@ -54,7 +54,9 @@ class StateGraph:
             current = self.nodes[reverse_queue[idx]]
             reverse_queue.extend(current.predecessors)
             idx += 1
-        # Apparently this is the ordered set alternative in Python?
+        # Apparently this is how you do ordered sets? This will make sure (after
+        # reversing) to keep only the first occurence of state ids in the iteration
+        # order.
         queue = list(dict.fromkeys(reversed(reverse_queue)))
         for node in queue:
             yield self.nodes[node]

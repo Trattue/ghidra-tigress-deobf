@@ -8,7 +8,7 @@ from gtd.config.locations import Locations
 from gtd.frontend.simulator import simulate_vm
 
 sample1_fib = Config(
-    Locations(vpc_offset=0x140, vsp_offset=0x138, locals_offset=0),  # TODO
+    Locations(vpc_offset=0x140, vsp_offset=0x138, locals_offset=0x30),
     [
         Handler(0xCF, 0x4018AC, 0x4018FB),
         Handler(0xB5, 0x401903, 0x40195C, 4),
@@ -29,7 +29,7 @@ sample1_fib = Config(
 )
 
 sample1_xtea = Config(
-    Locations(vpc_offset=0x140, vsp_offset=0x138, locals_offset=0),  # TODO
+    Locations(vpc_offset=0x140, vsp_offset=0x138, locals_offset=0x30),
     [
         Handler(0xEE, 0x401171, 0x40119A),
         Handler(0xFA, 0x4011A2, 0x4011EF),
