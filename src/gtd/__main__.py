@@ -1,31 +1,14 @@
 import argparse
 
+from gtd.backend.codegen import Codegen
 from gtd.config import Config
 from gtd.config.function import Function
 from gtd.config.handler import Handler
-from gtd.stuff import do_stuff
-
-test1_fib = Config(
-    [
-        Handler(0xD2, 0x4011E4, 0x40123E, 4),
-        Handler(0x6B, 0x401246, 0x401274, 4),
-        Handler(0x4C, 0x40127F, 0x4012CB, 4),
-        Handler(0x33, 0x4012D6, 0x401313),
-        Handler(0x18, 0x40131E, 0x401375, 4),
-        Handler(0xF0, 0x401380, 0x4013A7),
-        Handler(0x2E, 0x4013B2, 0x401413, 4),
-        Handler(0xBC, 0x40141E, 0x401444),
-        Handler(0xA6, 0x40144F, 0x401632),
-        Handler(0x3D, 0x40146C, 0x4014B5),
-        Handler(0x77, 0x4014C0, 0x401521, 4),
-        Handler(0xEA, 0x40152C, 0x401585, 4),
-        Handler(0x85, 0x401590, 0x4015CF),
-        Handler(0xF8, 0x4015DE, 0x40162D),
-    ],
-    [],
-)
+from gtd.config.locations import Locations
+from gtd.frontend.simulator import simulate_vm
 
 sample1_fib = Config(
+    Locations(vpc_offset=0x140, vsp_offset=0x138, locals_offset=0),  # TODO
     [
         Handler(0xCF, 0x4018AC, 0x4018FB),
         Handler(0xB5, 0x401903, 0x40195C, 4),
@@ -46,6 +29,7 @@ sample1_fib = Config(
 )
 
 sample1_xtea = Config(
+    Locations(vpc_offset=0x140, vsp_offset=0x138, locals_offset=0),  # TODO
     [
         Handler(0xEE, 0x401171, 0x40119A),
         Handler(0xFA, 0x4011A2, 0x4011EF),
@@ -71,7 +55,6 @@ sample1_xtea = Config(
         Handler(0xF4, 0x4017C3, 0x401824, 4),
         Handler(0x0, 0x401833, 0x401861, 4),
     ],
-    [],
 )
 
 
@@ -79,4 +62,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("path")
     args = p.parse_args()
-    do_stuff(args.path, sample1_fib)
+    config = sample1_fib
+    graphs = simulate_vm(args.path, config)
+    codegen = Codegen(config)
+    codegen.codegen_vm(graphs)
