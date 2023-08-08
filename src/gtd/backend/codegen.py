@@ -29,7 +29,7 @@ class Codegen:
             sizes.add(handler.operand_size)
         for size in sizes:
             bits = size * 8
-            print(f"define token I{bits}({bits}) imm{bits}=(0,{bits - 1})")
+            print(f"define token I{bits}({bits}) imm{bits}=(0,{bits - 1});")
 
         # Codegen handlers/graphs
         for graph in graphs:
@@ -52,7 +52,7 @@ class Codegen:
         else:
             arg_bits = graph.handler.operand_size * 8
             print(
-                f"\nvm_{hex_opcode} imm{arg_bits} is op={hex_opcode}; imm{arg_bits} {{"
+                f"\n:vm_{hex_opcode} imm{arg_bits} is op={hex_opcode}; imm{arg_bits} {{"
             )
 
         # Codegen states
@@ -65,17 +65,18 @@ class Codegen:
     def _codegen_state(self, state: State):
         match state.id:
             case StateGraph.END_GOTO_VPC_ID:
-                print(f"<end_goto_vpc>:")
+                print(f"<end_goto_vpc>")
                 print("VSP = vsp;")
                 print("goto [vpc];")
             case StateGraph.END_REGULAR_ID:
-                print(f"<end_regular>:")
+                print(f"<end_regular>")
+                print(f"VSP = vsp;")
             case StateGraph.START_ID:
                 # No label to print since the first label is not used
                 print("local vpc:8 = inst_start;")
                 print("local vsp:8 = VSP;")
             case _:
-                print(f"<state_{state.id}>:")
+                print(f"<state_{state.id}>")
 
         for statement in state.statements:
             self._codegen_statement(statement)
@@ -116,7 +117,7 @@ class Codegen:
 
                 data = self._codegen_expression(stmt.data)
                 result.context.extend(data.context)
-                right_side = f"{data.expression}"
+                right_side = f"{data.expression};"
 
                 result.expression = left_side + right_side
                 print(result)
@@ -136,7 +137,7 @@ class Codegen:
 
                 origin = self._codegen_expression(stmt.origin)
                 result.context.extend(origin.context)
-                right_side = f"*{origin.expression}"
+                right_side = f"*{origin.expression};"
                 # Hardcoded patch to support one argument...
                 # TODO: make this dynamic (config!)
                 tmp = claripy.simplify(stmt.origin - 1)
