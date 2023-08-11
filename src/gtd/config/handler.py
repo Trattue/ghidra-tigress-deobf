@@ -21,3 +21,11 @@ class Handler:
         self.start = start
         self.end = end
         self.operand_sizes = operand_sizes
+
+        # Calculate operand offsets from sizes. We assume the opcode is 1 byte and all
+        # operands are consecutive in the order passed
+        self.operands: dict[int, tuple[int, int]] = {}
+        offset = 1
+        for i, operand_size in enumerate(operand_sizes):
+            self.operands[offset] = (i, operand_size)
+            offset += operand_size

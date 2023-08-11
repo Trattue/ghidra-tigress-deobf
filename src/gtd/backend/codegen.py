@@ -1,6 +1,7 @@
 import math
 
 import claripy
+from gtd.config.handler import Handler
 import gtd.frontend.statement
 from gtd.backend.expression import CodeGenExpr
 from gtd.config import Config
@@ -23,13 +24,19 @@ class Codegen:
         # Generate different operand sizes (only those that are atually used by the
         # handlers)
         sizes: set[int] = set()
-        for operand_sizes in map(lambda h: h.operand_sizes, self.config.handlers):
-            for operand_size in operand_sizes:
-                sizes.add(operand_size)
-
+        operands: dict[int, set[int]] = {}
+        for handler in self.config.handlers:
+            for (index, size) in handler.operands.values():
+                sizes.add(size)
+                if size not in operands:
+                    operands[size] = set()
+                operands[size].add(index)
         for size in sizes:
             bits = size * 8
-            print(f"define token I{bits}({bits}) imm{bits}=(0,{bits - 1});")
+            print(f"define token I{bits}({bits})")
+            for index in operands[size]:
+                print(f"    imm{index}_{bits}=(0,{bits - 1})")
+            print(";")
 
         # Codegen handlers/graphs
         for graph in graphs:
@@ -55,21 +62,21 @@ class Codegen:
             for i, operand_size in enumerate(graph.handler.operand_sizes):
                 if i != 0:
                     structure += ","
-                structure += f" imm{operand_size * 8}"
+                structure += f" imm{i}_{operand_size * 8}"
             structure += f" is op={hex_opcode}"
-            for operand_size in graph.handler.operand_sizes:
-                structure += f"; imm{operand_size * 8}"
+            for i, operand_size in enumerate(graph.handler.operand_sizes):
+                structure += f"; imm{i}_{operand_size * 8}"
             structure += " {"
             print(structure)
 
         # Codegen states
         for state in graph.__iter__():
-            self._codegen_state(state)
+            self._codegen_state(state, graph.handler, graph.vpc)
 
         # End
         print("}")
 
-    def _codegen_state(self, state: State):
+    def _codegen_state(self, state: State, handler: Handler, vpc: claripy.ast.BV):
         match state.id:
             case StateGraph.END_GOTO_VPC_ID:
                 print(f"<end_goto_vpc>")
@@ -86,7 +93,7 @@ class Codegen:
                 print(f"<state_{state.id}>")
 
         for statement in state.statements:
-            self._codegen_statement(statement)
+            self._codegen_statement(statement, handler, vpc)
 
         for target, condition in state.jumps.items():
             target_name = ""
@@ -104,7 +111,7 @@ class Codegen:
                 goto_side = f"goto <{target_name}>;"
                 print(if_side + goto_side)
 
-    def _codegen_statement(self, stmt):
+    def _codegen_statement(self, stmt, handler: Handler, vpc: claripy.ast.BV):
         match type(stmt):
             case gtd.frontend.statement.WriteStatement:
                 result = CodeGenExpr()
@@ -145,15 +152,24 @@ class Codegen:
                 origin = self._codegen_expression(stmt.origin)
                 result.context.extend(origin.context)
                 right_side = f"*({origin.expression});"
-                # Hardcoded patch to support one argument...
-                # TODO: make this dynamic (config!)
-                tmp = claripy.simplify(stmt.origin - 1)
-                if (
-                    isinstance(tmp, claripy.ast.bv.BV)
-                    and tmp.op == "BVS"
-                    and tmp.args[0].startswith("vpc")
-                ):
-                    right_side = f"imm{stmt.data.length};"
+
+                # Argument support. We check if origin is at an offset to vpc; if that
+                # is the case, it likely is an operand. To filter out data accesses
+                # relative to vpc that are not arguments, we limit the offset to 420 bytes.
+                sym_offset = claripy.simplify(stmt.origin - vpc)
+                if sym_offset.concrete and sym_offset.args[0] <= 420:
+                    offset = sym_offset.args[0]
+                    operand = handler.operands[offset]
+                    operand_size = operand[1] * 8
+
+                    # Sanity check: Is the size defined correctly?
+                    if operand_size != stmt.data.length:
+                        print(
+                            f"ERROR: operand with offset {offset} is defined as {operand_size}bit, but is {stmt.data.length}bit"
+                        )
+                        exit(1)
+
+                    right_side = f"imm{operand[0]}_{operand_size};"
 
                 result.expression = left_side + right_side
                 print(result)

@@ -20,13 +20,14 @@ def simulate_handler(
     project: angr.Project, handler: Handler, config: Config
 ) -> StateGraph:
     hooks = Hooks(config)
-    simulation = create_simulation(project, handler.start, config.locations, hooks)
+    vpc = claripy.BVS("vpc", 64)
+    simulation = create_simulation(project, handler.start, config.locations, hooks, vpc)
     simulation.explore(find=handler.end, num_find=999)
 
     for error in simulation.errored:
         print(f"ERROR in handler {hex(handler.opcode)}: {error}")
 
-    graph = StateGraph(handler, config.locations)
+    graph = StateGraph(handler, config.locations, vpc)
     for solution in simulation.found:
         # Manually call end hook since that's custom
         hooks.end(solution)
@@ -35,7 +36,11 @@ def simulate_handler(
 
 
 def create_simulation(
-    project: angr.Project, start: int, locations: Locations, hooks: Hooks
+    project: angr.Project,
+    start: int,
+    locations: Locations,
+    hooks: Hooks,
+    vpc: claripy.ast.BV,
 ) -> angr.sim_manager.SimulationManager:
     state = project.factory.blank_state(
         addr=start,
@@ -52,7 +57,7 @@ def create_simulation(
 
     # Set up RBP and registers for less angr issues
     state.regs.rbp = Locations.RBP
-    state.mem[locations.vpc].uint64_t = claripy.BVS("vpc", 64)
+    state.mem[locations.vpc].uint64_t = vpc
     state.mem[locations.vsp].uint64_t = claripy.BVS("vsp", 64)
 
     # Breakpoints for custom SimActions

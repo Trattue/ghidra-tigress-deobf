@@ -28,7 +28,7 @@ class StateGraph:
     END_REGULAR_ID = -1
     START_ID = 0
 
-    def __init__(self, handler: Handler, locations: Locations):
+    def __init__(self, handler: Handler, locations: Locations, vpc: claripy.ast.BV):
         self.end_goto_vpc = State(self.END_GOTO_VPC_ID)
         self.end_regular = State(self.END_REGULAR_ID)
         self.nodes: dict[int, State] = {
@@ -37,6 +37,7 @@ class StateGraph:
         }
         self.handler = handler
         self.locations = locations
+        self.vpc = vpc
 
     def __iter__(self):
         # A simple BFS implementation won't be enough for iteration, we need to keep
