@@ -9,11 +9,13 @@ from gtd.frontend.sim_actions import (
 
 
 class Hooks:
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, vpc: claripy.ast.BV):
         self.config = config
+        self.vpc = vpc
         self.__read_expr_count = 0
         self.__fork_id = 0
         self.__return_value_count = 0
+        self.operands: set[tuple[int, int]] = set()
 
     def mem_read(self, state):
         length = state.inspect.mem_read_length
@@ -24,8 +26,8 @@ class Hooks:
             origin.op != "BVS"
             and origin.concrete
             and (
-                origin.args[0] == 0x7FF0000000 - 0x140
-                or origin.args[0] == 0x7FF0000000 - 0x138
+                origin.args[0] == self.config.locations.vpc
+                or origin.args[0] == self.config.locations.vsp
             )
         ):
             return
@@ -34,6 +36,12 @@ class Hooks:
             f"read_{self.__read_expr_count}", length * 8
         )
         self.__read_expr_count += 1
+
+        # Arguments
+        sym_offset = claripy.simplify(origin - self.vpc)
+        if sym_offset.op != "BVS" and sym_offset.concrete and sym_offset.args[0] <= 420:
+            offset = sym_offset.args[0]
+            self.operands.add((offset, length))
 
     def call(self, state):
         # TODO symbolic function address?

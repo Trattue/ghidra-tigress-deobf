@@ -19,13 +19,24 @@ def simulate_vm(path: str, config: Config) -> list[StateGraph]:
 def simulate_handler(
     project: angr.Project, handler: Handler, config: Config
 ) -> StateGraph:
-    hooks = Hooks(config)
+    print(f"[+] Simulating handler {hex(handler.opcode)}...")
     vpc = claripy.BVS("vpc", 64)
+    hooks = Hooks(config, vpc)
     simulation = create_simulation(project, handler.start, config.locations, hooks, vpc)
     simulation.explore(find=handler.end, num_find=999)
 
     for error in simulation.errored:
-        print(f"ERROR in handler {hex(handler.opcode)}: {error}")
+        print(f"[!] ERROR in handler {hex(handler.opcode)}: {error}")
+
+    # Reconstruct operands
+    if len(handler.operand_sizes) > 0 and handler.operand_sizes[0] == -1:
+        # Sort by offset and create tuple of sizes sorted by index
+        operand_sizes = tuple(
+            map(lambda op: op[1], sorted(list(hooks.operands), key=lambda op: op[0]))
+        )
+        handler.set_operand_sizes(operand_sizes)
+        if len(operand_sizes) > 0:
+            print(f"[*] Found operands: {list(operand_sizes)}")
 
     graph = StateGraph(handler, config.locations, vpc)
     for solution in simulation.found:

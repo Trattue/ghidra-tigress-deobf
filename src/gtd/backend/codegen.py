@@ -21,6 +21,9 @@ class Codegen:
         self.__sext_count = 0
 
     def codegen_vm(self, graphs: list[StateGraph]):
+        print("\nSleigh code for VM below:")
+        print("=========================\n")
+
         # Generate different operand sizes (only those that are atually used by the
         # handlers)
         sizes: set[int] = set()
@@ -157,7 +160,11 @@ class Codegen:
                 # is the case, it likely is an operand. To filter out data accesses
                 # relative to vpc that are not arguments, we limit the offset to 420 bytes.
                 sym_offset = claripy.simplify(stmt.origin - vpc)
-                if sym_offset.concrete and sym_offset.args[0] <= 420:
+                if (
+                    sym_offset.op != "BVS"
+                    and sym_offset.concrete
+                    and sym_offset.args[0] <= 420
+                ):
                     offset = sym_offset.args[0]
                     operand = handler.operands[offset]
                     operand_size = operand[1] * 8
@@ -165,7 +172,7 @@ class Codegen:
                     # Sanity check: Is the size defined correctly?
                     if operand_size != stmt.data.length:
                         print(
-                            f"ERROR: operand with offset {offset} is defined as {operand_size}bit, but is {stmt.data.length}bit"
+                            f"[!] ERROR: operand with offset {offset} is defined as {operand_size}bit, but is {stmt.data.length}bit"
                         )
                         exit(1)
 

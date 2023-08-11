@@ -17,6 +17,8 @@ class StateGraph:
         The handler this graph represents.
     locations : Locations
         Important addresses, for example VPC.
+    vpc : claripy.ast.BV
+        The symbolic variable for VPC.
 
     Attributes:
     -----------
