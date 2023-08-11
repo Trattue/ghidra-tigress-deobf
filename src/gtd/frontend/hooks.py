@@ -53,8 +53,17 @@ class Hooks:
 
         # Figure out how many arguments this function has in the config and create sim
         # action
-        functions = self.config.functions
-        func = list(filter(lambda f: f.address == function_address, functions))[0]
+        functions = list(
+            filter(lambda f: f.address == function_address, self.config.functions)
+        )
+        # Sanity check: function should be in config, else complain and assume no args
+        if len(functions) == 0:
+            print(f"[!] ERROR in function hook: {hex(function_address)} not in config")
+            a = SimActionCall(state, function_address, [])
+            state.history.add_action(a)
+            return
+
+        func = functions[0]
         remaining = func.arguments
         cc = [
             state.regs.rdi,

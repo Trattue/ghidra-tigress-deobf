@@ -109,9 +109,11 @@ class StateGraph:
                     current_jump = action.guard
                 case gtd.frontend.sim_actions.SimActionFork:
                     # At this point, we get to know the right id of the current state,
-                    # so let's correct it.
+                    # so let's correct it and create a state object for the next state.
                     id = action.id
                     current.id = id
+                    new_current = State(self.START_ID)
+                    new_current.predecessors.add(id)
 
                     # We need to add any jumps to this state we saved earlier and save
                     # the jump to the next state. We don't have issues with duplicate
@@ -125,34 +127,30 @@ class StateGraph:
                     # for duplicates in the graph. If a state with the same id exists,
                     # it is the same as the current state.
                     if self.nodes.get(id) != None:
-                        current = State(self.START_ID)
-                        current.predecessors.add(saved_id)
+                        self.nodes[id].predecessors.union(current.predecessors)
+                        current = new_current
                         saved_id = id
                         continue
                     saved_id = id
                     self.nodes[id] = current
-                    current = State(self.START_ID)
+                    current = new_current
                 case gtd.frontend.sim_actions.SimActionEnd:
-                    # Same behavior as with forks, we get the right state id,...
+                    # Since this is the last state in a solution, we can omit cleanup of
+                    # some variables and creation of the next state. Apart from that,
+                    # same behavior as with forks, we get the right state id, ...
                     id = action.id
                     current.id = id
 
                     # ... save jumps to the current state (we can ignore the current
                     # jump since there is no next state, though)...
-
                     if saved_jump != None:
                         self.nodes[saved_id].jumps[id] = saved_jump
-                    current_jump = None
 
                     # ... and add the state to the graph.
                     if self.nodes.get(id) != None:
-                        current = State(self.START_ID)
-                        current.predecessors.add(saved_id)
-                        saved_id = id
+                        self.nodes[id].predecessors.union(current.predecessors)
                         continue
-                    saved_id = id
                     self.nodes[id] = current
-                    current = State(self.START_ID)
 
                     # Lastly, we check whether vpc points to the next instruction or
                     # whether we will need a goto.
