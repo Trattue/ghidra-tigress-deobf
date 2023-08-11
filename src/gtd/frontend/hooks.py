@@ -13,6 +13,7 @@ class Hooks:
         self.config = config
         self.__read_expr_count = 0
         self.__fork_id = 0
+        self.__return_value_count = 0
 
     def mem_read(self, state):
         length = state.inspect.mem_read_length
@@ -38,6 +39,12 @@ class Hooks:
         # TODO symbolic function address?
         function_address = state.solver.eval_one(state.inspect.function_address)
 
+        # Handle return value
+        # TODO untested, test this. do we need BP_AFTER (probably yes)
+        state.regs.rax = claripy.BVS(f"return_{self.__return_value_count}", 64)
+
+        # Figure out how many arguments this function has in the config and create sim
+        # action
         functions = self.config.functions
         func = list(filter(lambda f: f.address == function_address, functions))[0]
         remaining = func.arguments

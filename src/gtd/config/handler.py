@@ -11,13 +11,13 @@ class Handler:
     end : int
         End address of the vm handler (the address of the instruction
         after the last instruction in the handler).
-    operand_size : int
-        Operand size in bytes; 0 by default (no operand).
+    *operand_sizes : int
+        Operand sizes in bytes.
     """
 
-    def __init__(self, opcode: int, start: int, end: int, operand_size: int = 0):
+    def __init__(self, opcode: int, start: int, end: int, *operand_sizes: int):
         """Create a handler."""
         self.opcode = opcode
         self.start = start
         self.end = end
-        self.operand_size = operand_size
+        self.operand_sizes = operand_sizes

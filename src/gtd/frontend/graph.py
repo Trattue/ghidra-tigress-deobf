@@ -154,7 +154,8 @@ class StateGraph:
                     # Lastly, we check whether vpc points to the next instruction or
                     # whether we will need a goto.
                     vpc = solution.mem[self.locations.vpc].uint64_t.resolved
-                    tmp = claripy.simplify(vpc - (1 + self.handler.operand_size))
+                    size = sum(self.handler.operand_sizes) + 1
+                    tmp = claripy.simplify(vpc - size)
                     if (
                         isinstance(tmp, claripy.ast.bv.BV)
                         and tmp.op == "BVS"

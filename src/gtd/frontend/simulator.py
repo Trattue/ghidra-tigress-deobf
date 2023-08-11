@@ -57,7 +57,7 @@ def create_simulation(
 
     # Breakpoints for custom SimActions
     state.inspect.b("mem_read", action=hooks.mem_read, when=angr.state_plugins.BP_AFTER)
-    state.inspect.b("call", action=hooks.call)
+    state.inspect.b("call", action=hooks.call, when=angr.state_plugins.BP_AFTER)
     state.inspect.b("exit", action=hooks.exit)
     state.inspect.b("fork", action=hooks.fork, when=angr.state_plugins.BP_AFTER)
 

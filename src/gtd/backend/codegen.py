@@ -23,10 +23,10 @@ class Codegen:
         # Generate different operand sizes (only those that are atually used by the
         # handlers)
         sizes: set[int] = set()
-        for handler in filter(
-            lambda handler: handler.operand_size != 0, self.config.handlers
-        ):
-            sizes.add(handler.operand_size)
+        for operand_sizes in map(lambda h: h.operand_sizes, self.config.handlers):
+            for operand_size in operand_sizes:
+                sizes.add(operand_size)
+
         for size in sizes:
             bits = size * 8
             print(f"define token I{bits}({bits}) imm{bits}=(0,{bits - 1});")
@@ -47,13 +47,20 @@ class Codegen:
 
         # Structure definition
         hex_opcode = hex(graph.handler.opcode)
-        if graph.handler.operand_size == 0:
+        if len(graph.handler.operand_sizes) == 0:
             print(f"\n:vm_{hex_opcode} is op={hex_opcode} {{")
         else:
-            arg_bits = graph.handler.operand_size * 8
-            print(
-                f"\n:vm_{hex_opcode} imm{arg_bits} is op={hex_opcode}; imm{arg_bits} {{"
-            )
+            # TODO: think how to do this in ghidra
+            structure = f"\n:vm_{hex_opcode}"
+            for i, operand_size in enumerate(graph.handler.operand_sizes):
+                if i != 0:
+                    structure += ","
+                structure += f" imm{operand_size * 8}"
+            structure += f" is op={hex_opcode}"
+            for operand_size in graph.handler.operand_sizes:
+                structure += f"; imm{operand_size * 8}"
+            structure += " {"
+            print(structure)
 
         # Codegen states
         for state in graph.__iter__():
@@ -137,7 +144,7 @@ class Codegen:
 
                 origin = self._codegen_expression(stmt.origin)
                 result.context.extend(origin.context)
-                right_side = f"*{origin.expression};"
+                right_side = f"*({origin.expression});"
                 # Hardcoded patch to support one argument...
                 # TODO: make this dynamic (config!)
                 tmp = claripy.simplify(stmt.origin - 1)
