@@ -253,10 +253,9 @@ class Codegen:
                 locals_address = self.config.locations.locals
                 if c == locals_address:
                     result.expression = "locals"
-                elif c == 0x7FF0000000 - 0x144:
-                    # fib only
-                    # TODO: config option for vm arguments
-                    result.expression = f"internal1"
+                elif c in self.config.locations.internals:
+                    index = self.config.locations.internals.index(c)
+                    result.expression = f"internal{index + 1}"
                 elif (
                     c & 0x7FFFFFFFFF == c
                     and c & 0xFFFFFFFF != c

@@ -8,7 +8,10 @@ from gtd.config.locations import Locations
 from gtd.frontend.simulator import simulate_vm
 
 sample1_fib = Config(
-    Locations(vpc_offset=0x140, vsp_offset=0x138, locals_offset=0x30),
+    "sample1_fib",
+    Locations(
+        vpc_offset=0x140, vsp_offset=0x138, locals_offset=0x30, internal_offsets=[0x144]
+    ),
     [
         Handler(0xCF, 0x4018AC, 0x4018FB, Handler.DETECT_OPERANDS),
         Handler(0xB5, 0x401903, 0x40195C, Handler.DETECT_OPERANDS),  # 4
@@ -29,7 +32,13 @@ sample1_fib = Config(
 )
 
 sample1_xtea = Config(
-    Locations(vpc_offset=0x140, vsp_offset=0x138, locals_offset=0x30),
+    "sample1_xtea",
+    Locations(
+        vpc_offset=0x140,
+        vsp_offset=0x138,
+        locals_offset=0x30,
+        internal_offsets=[0x144, 0x150, 0x158],
+    ),
     [
         Handler(0xEE, 0x401171, 0x40119A, Handler.DETECT_OPERANDS),
         Handler(0xFA, 0x4011A2, 0x4011EF, Handler.DETECT_OPERANDS),
@@ -58,7 +67,10 @@ sample1_xtea = Config(
 )
 
 sample2_fib = Config(
-    Locations(vpc_offset=0x140, vsp_offset=0x138, locals_offset=0x30),
+    "sample2_fib",
+    Locations(
+        vpc_offset=0x140, vsp_offset=0x138, locals_offset=0x30, internal_offsets=[0x144]
+    ),
     [
         Handler(0x86, 0x401163, 0x4011D7, Handler.DETECT_OPERANDS),
         Handler(0x45, 0x4011E6, 0x40128F, Handler.DETECT_OPERANDS),
@@ -79,7 +91,13 @@ sample2_fib = Config(
 )
 
 sample2_xtea = Config(
-    Locations(vpc_offset=0x140, vsp_offset=0x138, locals_offset=0x30),
+    "sample2_xtea",
+    Locations(
+        vpc_offset=0x140,
+        vsp_offset=0x138,
+        locals_offset=0x30,
+        internal_offsets=[0x144, 0x150, 0x158],
+    ),
     [
         Handler(0xEF, 0x4019DB, 0x401AB6, Handler.DETECT_OPERANDS),
         Handler(0xF7, 0x401AC5, 0x401BA4, Handler.DETECT_OPERANDS),
@@ -111,7 +129,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("path")
     args = p.parse_args()
-    config = sample2_xtea
+    config = sample1_fib
     graphs = simulate_vm(args.path, config)
     codegen = Codegen(config)
     codegen.codegen_vm(graphs)
