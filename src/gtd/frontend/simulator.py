@@ -10,6 +10,7 @@ from gtd.frontend.hooks import Hooks
 def simulate_vm(path: str, config: Config) -> list[StateGraph]:
     project = angr.Project(path, load_options={"auto_load_libs": False})
 
+    print(f"[+] Simulating VM {config.vm_name}")
     graphs = []
     for handler in config.handlers:
         graphs.append(simulate_handler(project, handler, config))

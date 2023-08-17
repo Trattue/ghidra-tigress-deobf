@@ -22,7 +22,7 @@ class Codegen:
 
     def codegen_vm(self, graphs: list[StateGraph]):
         print("\nSleigh code for VM below:")
-        print("=========================\n")
+        print("=========================")
 
         # Generate different operand sizes (only those that are atually used by the
         # handlers)
@@ -44,6 +44,7 @@ class Codegen:
         # Codegen handlers/graphs
         for graph in graphs:
             self._codegen_graph(graph)
+        print("=========================\n")
 
     def _codegen_graph(self, graph: StateGraph):
         # Reset counters
