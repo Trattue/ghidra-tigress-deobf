@@ -1,6 +1,7 @@
 import math
 
 import claripy
+from gtd import config
 from gtd.config.handler import Handler
 import gtd.frontend.statement
 from gtd.backend.expression import CodeGenExpr
@@ -20,9 +21,9 @@ class Codegen:
         self.__zext_count = 0
         self.__sext_count = 0
 
-    def codegen_vm(self, graphs: list[StateGraph]):
-        print("\nSleigh code for VM below:")
-        print("=========================")
+    def codegen_vm(self, graphs: list[StateGraph]) -> str:
+        print(f"[+] Codegen VM {self.config.vm_name}...")
+        result = ""
 
         # Generate different operand sizes (only those that are atually used by the
         # handlers)
@@ -36,17 +37,21 @@ class Codegen:
                 operands[size].add(index)
         for size in sizes:
             bits = size * 8
-            print(f"define token I{bits}({bits})")
+            result += f"define token I{bits}({bits})\n"
             for index in operands[size]:
-                print(f"    imm{index}_{bits}=(0,{bits - 1})")
-            print(";")
+                result += f"    imm{index}_{bits}=(0,{bits - 1})\n"
+            result += ";\n"
 
         # Codegen handlers/graphs
         for graph in graphs:
-            self._codegen_graph(graph)
-        print("=========================\n")
+            result += self._codegen_graph(graph)
 
-    def _codegen_graph(self, graph: StateGraph):
+        return result
+
+    def _codegen_graph(self, graph: StateGraph) -> str:
+        print(f"[+] Codegen handler {hex(graph.handler.opcode)}...")
+        result = ""
+
         # Reset counters
         self.__concat_tmp_count = 0
         self.__concat_result_count = 0
@@ -59,7 +64,7 @@ class Codegen:
         # Structure definition
         hex_opcode = hex(graph.handler.opcode)
         if len(graph.handler.operand_sizes) == 0:
-            print(f"\n:vm_{hex_opcode} is op={hex_opcode} {{")
+            result += f"\n:vm_{hex_opcode} is op={hex_opcode} {{\n"
         else:
             # TODO: think how to do this in ghidra
             structure = f"\n:vm_{hex_opcode}"
@@ -70,34 +75,39 @@ class Codegen:
             structure += f" is op={hex_opcode}"
             for i, operand_size in enumerate(graph.handler.operand_sizes):
                 structure += f"; imm{i}_{operand_size * 8}"
-            structure += " {"
-            print(structure)
+            structure += " {\n"
+            result += structure
 
         # Codegen states
         for state in graph.__iter__():
-            self._codegen_state(state, graph.handler, graph.vpc)
+            result += self._codegen_state(state, graph.handler, graph.vpc)
 
         # End
-        print("}")
+        result += "}\n"
 
-    def _codegen_state(self, state: State, handler: Handler, vpc: claripy.ast.BV):
+        return result
+
+    def _codegen_state(
+        self, state: State, handler: Handler, vpc: claripy.ast.BV
+    ) -> str:
+        result = ""
         match state.id:
             case StateGraph.END_GOTO_VPC_ID:
-                print(f"<end_goto_vpc>")
-                print("VSP = vsp;")
-                print("goto [vpc];")
+                result += f"<end_goto_vpc>\n"
+                result += "VSP = vsp;\n"
+                result += "goto [vpc];\n"
             case StateGraph.END_REGULAR_ID:
-                print(f"<end_regular>")
-                print(f"VSP = vsp;")
+                result += f"<end_regular>\n"
+                result += f"VSP = vsp;\n"
             case StateGraph.START_ID:
                 # No label to print since the first label is not used
-                print("local vpc:8 = inst_start;")
-                print("local vsp:8 = VSP;")
+                result += "local vpc:8 = inst_start;\n"
+                result += "local vsp:8 = VSP;\n"
             case _:
-                print(f"<state_{state.id}>")
+                result += f"<state_{state.id}>\n"
 
         for statement in state.statements:
-            self._codegen_statement(statement, handler, vpc)
+            result += self._codegen_statement(statement, handler, vpc)
 
         for target, condition in state.jumps.items():
             target_name = ""
@@ -109,13 +119,14 @@ class Codegen:
                 target_name = f"state_{target}"
 
             if condition == None:
-                print(f"goto <{target_name}>;")
+                result += f"goto <{target_name}>;\n"
             else:
                 if_side = f"if {self._codegen_bool(condition)} "
                 goto_side = f"goto <{target_name}>;"
-                print(if_side + goto_side)
+                result += if_side + goto_side + "\n"
+        return result
 
-    def _codegen_statement(self, stmt, handler: Handler, vpc: claripy.ast.BV):
+    def _codegen_statement(self, stmt, handler: Handler, vpc: claripy.ast.BV) -> str:
         match type(stmt):
             case gtd.frontend.statement.WriteStatement:
                 result = CodeGenExpr()
@@ -138,7 +149,7 @@ class Codegen:
                 right_side = f"{data.expression};"
 
                 result.expression = left_side + right_side
-                print(result)
+                return f"{result}\n"
             case gtd.frontend.statement.ReadStatement:
                 # We ignore reads at vpc and vsp as in sleigh code the registers can
                 # simply be used.
@@ -146,7 +157,7 @@ class Codegen:
                     stmt.origin.args[0] == self.config.locations.vpc
                     or stmt.origin.args[0] == self.config.locations.vsp
                 ):
-                    return
+                    return ""
 
                 result = CodeGenExpr()
 
@@ -180,7 +191,7 @@ class Codegen:
                     right_side = f"imm{operand[0]}_{operand_size};"
 
                 result.expression = left_side + right_side
-                print(result)
+                return f"{result}\n"
             case gtd.frontend.statement.CallStatement:
                 result = CodeGenExpr()
                 for i, arg in enumerate(stmt.arguments):
@@ -188,7 +199,7 @@ class Codegen:
                     result.context.extend(expr.context)
                     result.context.append(f"param{i + 1} = {expr.expression};")
                 result.expression = f"call {hex(stmt.target)};"
-                print(result)
+                return f"{result}\n"
 
     def _codegen_expression(self, expression) -> CodeGenExpr:
         match type(expression):

@@ -1,0 +1,23 @@
+# Ignore everything
+/*
+
+# Only whitelist eclipse files when necessary!
+# Whitelist eclipse files
+!/.settings/
+!.classpath
+!.project
+
+# Whitelist src
+!/data/
+!/ghidra_scripts/
+!/gradle/
+!/lib/
+!/os/
+!/src/
+!/.gitignore
+!/build.gradle
+!/extension.properties
+!/gradlew
+!/gradlew.bat
+!/Module.manifest
+!/README.md

@@ -2,6 +2,7 @@ import argparse
 import tomllib
 
 from gtd.backend.codegen import Codegen
+from gtd.backend.plugin import generate_plugin
 from gtd.config import Config
 from gtd.config.function import Function
 from gtd.config.handler import Handler
@@ -19,8 +20,9 @@ def main():
         for vm in toml_config["virtual_machines"]:
             config = parse_vm_config(vm)
             graphs = simulate_vm(binary_path, config)
-            Codegen(config).codegen_vm(graphs)
-            pass
+            slaspec = Codegen(config).codegen_vm(graphs)
+            generate_plugin(config.vm_name, slaspec)
+    print("Done.")
 
 
 def parse_vm_config(vm_config) -> Config:

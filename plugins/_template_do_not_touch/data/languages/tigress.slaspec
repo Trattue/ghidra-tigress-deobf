@@ -1,0 +1,12 @@
+define endian=little;
+define alignment=1;
+
+define space register type=register_space size=2;
+define space ram type=ram_space size=8 default;
+
+define register offset=0 size=8 [VPC VSP locals param1 param2 param3 param4 internal1 internal2 internal3 internal4];
+
+define token opcode(8)
+    op=(0,7)
+;
+

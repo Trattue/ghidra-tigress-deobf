@@ -5,6 +5,7 @@
 !/poetry.lock
 !/pyproject.toml
 !/README.md
+!/plugins/
 !/samples/
 !/src/
 !/tests/
