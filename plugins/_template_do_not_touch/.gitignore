@@ -2,10 +2,10 @@
 /*
 
 # Only whitelist eclipse files when necessary!
-# Whitelist eclipse files
-!/.settings/
-!.classpath
-!.project
+## Whitelist eclipse files
+#!/.settings/
+#!.classpath
+#!.project
 
 # Whitelist src
 !/data/

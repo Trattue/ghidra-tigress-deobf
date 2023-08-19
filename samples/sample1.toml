@@ -6,7 +6,7 @@ binary_path = "samples/sample1.out"
 ##########
 
 [[virtual_machines]]
-name = "fib"
+name = "sample1-fib"
 
 [virtual_machines.locations]
 vpc_offset = 0x140
@@ -107,7 +107,7 @@ argument_count = 3
 ###########
 
 [[virtual_machines]]
-name = "xtea"
+name = "sample1-xtea"
 functions = []
 
 [virtual_machines.locations]
