@@ -245,5 +245,5 @@ detect_operands = true
 [[virtual_machines.handlers]]
 opcode = 0xf4
 start = 0x4028d4
-end = 0x4028e6
+end = 0x4028e7
 detect_operands = true
