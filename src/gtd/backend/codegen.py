@@ -287,6 +287,8 @@ class Codegen:
                     result.expression = "VSP"
                 elif name.startswith("vpc"):
                     result.expression = "inst_start"
+                elif name.startswith("fake_ret_value"):
+                    result.expression = "param1"
                 else:
                     result.expression = f"{expr.args[0]}"
                 return result

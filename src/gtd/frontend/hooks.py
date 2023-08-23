@@ -14,7 +14,6 @@ class Hooks:
         self.vpc = vpc
         self.__read_expr_count = 0
         self.__fork_id = 0
-        self.__return_value_count = 0
         self.operands: set[tuple[int, int]] = set()
 
     def mem_read(self, state):
@@ -39,17 +38,18 @@ class Hooks:
 
         # Arguments
         sym_offset = claripy.simplify(origin - self.vpc)
-        if sym_offset.op != "BVS" and sym_offset.concrete and sym_offset.args[0] <= 420:
+        if (
+            sym_offset.op != "BVS"
+            and sym_offset.concrete
+            and sym_offset.args[0] <= 420
+            and sym_offset.args[0] > 0
+        ):
             offset = sym_offset.args[0]
             self.operands.add((offset, length))
 
     def call(self, state):
         # TODO symbolic function address?
         function_address = state.solver.eval_one(state.inspect.function_address)
-
-        # Handle return value
-        # TODO untested, test this. do we need BP_AFTER (probably yes)
-        state.regs.rax = claripy.BVS(f"return_{self.__return_value_count}", 64)
 
         # Figure out how many arguments this function has in the config and create sim
         # action
