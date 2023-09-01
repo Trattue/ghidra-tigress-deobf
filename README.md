@@ -11,7 +11,7 @@ Usage: `poetry run main <path_to_config>`
 
 Example:
 
-´´´toml
+```toml
 # Path relative to the project root directory
 binary_path = "samples/sample1.out"
 
@@ -55,8 +55,7 @@ name = "sample1-xtea"
 functions = []
 
 [...]
-
-´´´
+```
 
 ## Development
 ### Code Style
