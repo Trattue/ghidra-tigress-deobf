@@ -43,20 +43,31 @@ class StateGraph:
 
     def __iter__(self):
         # A simple BFS implementation won't be enough for iteration, we need to keep
-        # track of dependencies. That's why we start with the two end nodes (if those
+        # track of dependencies. That's start BFS from the two end nodes (if those
         # are used) and iterate through the predecessors. Once we reverse this order,
         # we'll have an ordering that ensures that nodes are only returned after all of
-        # their dependencies.
+        # their dependencies. Additionally, by first doing BFS on the regular and and
+        # then on the goto end, it will exnsure it the final iteration order the goto
+        # end is always first.
+
+        # BFS after regular end
         reverse_queue = []
         if len(self.nodes[self.END_REGULAR_ID].predecessors) > 0:
             reverse_queue.append(self.END_REGULAR_ID)
-        if len(self.nodes[self.END_GOTO_VPC_ID].predecessors) > 0:
-            reverse_queue.append(self.END_GOTO_VPC_ID)
         idx = 0
         while idx < len(reverse_queue):
             current = self.nodes[reverse_queue[idx]]
             reverse_queue.extend(current.predecessors)
             idx += 1
+
+        # BFS after goto end
+        if len(self.nodes[self.END_GOTO_VPC_ID].predecessors) > 0:
+            reverse_queue.append(self.END_GOTO_VPC_ID)
+        while idx < len(reverse_queue):
+            current = self.nodes[reverse_queue[idx]]
+            reverse_queue.extend(current.predecessors)
+            idx += 1
+
         # Apparently this is how you do ordered sets? This will make sure (after
         # reversing) to keep only the first occurence of state ids in the iteration
         # order.
