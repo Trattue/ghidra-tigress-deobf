@@ -15,91 +15,97 @@ locals_offset = 0x50
 internal_offsets = [0x164]
 
 [[virtual_machines.handlers]]
-opcode = 0x88
-start = 0x401164
-end = 0x401176
+opcode = 0xb7
+start = 0x401759
+end = 0x4017b2
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xf9
-start = 0x401185
-end = 0x40122e
+start = 0x4017ba
+end = 0x4017cc
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0xe4
-start = 0x40123d
-end = 0x40131c
+opcode = 0xcd
+start = 0x4017db
+end = 0x4018ba
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0xfc
-start = 0x40132b
-end = 0x4013bf
+opcode = 0x41
+start = 0x4018c9
+end = 0x401972
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0x3
-start = 0x4013ce
-end = 0x401473
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x7f
-start = 0x40147e
-end = 0x4014f2
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xc7
-start = 0x401501
-end = 0x40157d
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x44
-start = 0x401588
-end = 0x4015b6
+opcode = 0x7e
+start = 0x40197d
+end = 0x4019ab
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x67
-start = 0x4015c1
-end = 0x40161a
+start = 0x4019ba
+end = 0x401a36
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0x38
-start = 0x401629
-end = 0x4016ba
+opcode = 0xe0
+start = 0x401a45
+end = 0x401ad9
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0xb9
-start = 0x4016c5
-end = 0x401730
+opcode = 0x96
+start = 0x401ae8
+end = 0x401bc7
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0x54
-start = 0x40173f
-end = 0x4017e7
+opcode = 0x45
+start = 0x401bd6
+end = 0x401cb1
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0xe2
-start = 0x4017f2
-end = 0x401862
+opcode = 0xb2
+start = 0x401cbc
+end = 0x401d27
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0xe7
-start = 0x401871
-end = 0x401936
+opcode = 0x2f
+start = 0x401d36
+end = 0x401e11
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x14
+start = 0x401e1c
+end = 0x401e59
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xfa
+start = 0x401e64
+end = 0x401edd
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x15
+start = 0x401ee8
+end = 0x401f4e
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xc6
+start = 0x401f5d
+end = 0x40201a
 detect_operands = true
 
 [[virtual_machines.functions]]
-address = 0x401030
+address = 0x401040
 argument_count = 3
 
 ###########
@@ -111,152 +117,264 @@ name = "sample2-xtea"
 functions = []
 
 [virtual_machines.locations]
-vpc_offset = 0x140
-vsp_offset = 0x138
-locals_offset = 0x30
-internal_offsets = [0x144, 0x150, 0x158]
+vpc_offset = 0x160
+vsp_offset = 0x158
+locals_offset = 0x50
+internal_offsets = [0x168, 0x170, 0x178]
 
 [[virtual_machines.handlers]]
-opcode = 0xb7
-start = 0x4019e6
-end = 0x401aa1
+opcode = 0x34
+start = 0x402075
+end = 0x40213c
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0x55
-start = 0x401ab0
-end = 0x401b79
+opcode = 0xc2
+start = 0x40214b
+end = 0x4021db
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0x3b
-start = 0x401b88
-end = 0x401c4a
+opcode = 0x84
+start = 0x4021ea
+end = 0x4022c2
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0x59
-start = 0x401c59
-end = 0x401d08
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x5e
-start = 0x401d17
-end = 0x401de4
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xd4
-start = 0x401df3
-end = 0x401ec4
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x76
-start = 0x401ed3
-end = 0x401fb2
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xeb
-start = 0x401fbd
-end = 0x40202d
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xae
-start = 0x40203c
-end = 0x402109
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x13
-start = 0x402114
-end = 0x40218b
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xa5
-start = 0x40219a
-end = 0x40225e
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x6a
-start = 0x40226d
-end = 0x40232e
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x82
-start = 0x40233d
-end = 0x4023fe
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x28
-start = 0x40240d
-end = 0x4024d6
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x5a
-start = 0x4024e5
-end = 0x4025cc
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xf0
-start = 0x4025db
-end = 0x402673
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xfc
-start = 0x402682
-end = 0x402732
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x2a
-start = 0x402741
-end = 0x4027f5
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x91
-start = 0x402800
-end = 0x402812
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xcb
-start = 0x402821
-end = 0x4028a2
+opcode = 0x8c
+start = 0x4022d1
+end = 0x402363
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x51
-start = 0x4028b1
-end = 0x402970
+start = 0x402372
+end = 0x40205e # [0x40245a, 0x402443]
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0x8d
-start = 0x40297b
-end = 0x4029ef
+opcode = 0xad
+start = 0x402465
+end = 0x4024df
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0x75
-start = 0x4029fa
-end = 0x402a28
+opcode = 0x7d
+start = 0x4024ee
+end = 0x4025d5
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0x2f
-start = 0x402a37
-end = 0x402acf
+opcode = 0xf3
+start = 0x4025e4
+end = 0x4026a7
 detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xa7
+start = 0x4026b6
+end = 0x402772
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x94
+start = 0x402781
+end = 0x40287a
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xfb
+start = 0x402885
+end = 0x4028b3
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x24
+start = 0x4028be
+end = 0x40292a
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xab
+start = 0x402939
+end = 0x402a32
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xe
+start = 0x402a41
+end = 0x402b1b
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xd0
+start = 0x402b26
+end = 0x402b98
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xf6
+start = 0x402ba3
+end = 0x402bb5
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x72
+start = 0x402bc0
+end = 0x402c36
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x40
+start = 0x402c45
+end = 0x402d03
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x64
+start = 0x402d12
+end = 0x402de4
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x98
+start = 0x402df3
+end = 0x402e73
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xf2
+start = 0x402e82
+end = 0x402f6e
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x4d
+start = 0x402f7d
+end = 0x40304d
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x46
+start = 0x403058
+end = 0x4030b9
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x45
+start = 0x4030c8
+end = 0x40317c
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x38
+start = 0x40318b
+end = 0x40325e
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x2
+start = 0x403269
+end = 0x4032df
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xa6
+start = 0x4032ee
+end = 0x4033d5
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x20
+start = 0x4033e4
+end = 0x4034b5
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x99
+start = 0x4034c4
+end = 0x40355a
+detect_operands = true
+
+###############
+# INTERACT VM #
+###############
+
+[[virtual_machines]]
+name = "sample2-interact"
+
+[virtual_machines.locations]
+vpc_offset = 0x170
+vsp_offset = 0x168
+locals_offset = 0x60
+internal_offsets = []
+
+[[virtual_machines.handlers]]
+opcode = 0xff
+start = 0x401181
+end = 0x401254
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x9d
+start = 0x401263
+end = 0x4012ef
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x3b
+start = 0x4012fa
+end = 0x40130c
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xf2
+start = 0x401317
+end = 0x401389
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x9c
+start = 0x401394
+end = 0x4013c2
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x3c
+start = 0x4013d1
+end = 0x4014a4
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xb2
+start = 0x4014b3
+end = 0x40155b
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xc8
+start = 0x401566
+end = 0x4015da
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x79
+start = 0x4015e9
+end = 0x4016c8
+detect_operands = true
+
+# puts
+[[virtual_machines.functions]]
+address = 0x401030
+argument_count = 1
+
+# printf
+[[virtual_machines.functions]]
+address = 0x401040
+argument_count = 1
+
+# scanf
+[[virtual_machines.functions]]
+address = 0x401050
+argument_count = 3
 
