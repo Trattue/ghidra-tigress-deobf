@@ -36,6 +36,10 @@ class Codegen:
                     operands[size] = set()
                 operands[size].add(index)
         for size in sizes:
+            if size == -1:
+                # For some reason indicator for automatic handler detection wasn't
+                # deleted, was the handler not executed?
+                continue
             bits = size * 8
             result += f"define token I{bits}({bits})\n"
             for index in operands[size]:
