@@ -3,5 +3,5 @@ export TIGRESS_HOME=$(pwd)
     --Transform=Virtualize \
     	--Functions=fib,xtea,interact \
     	--VirtualizeDispatch=ifnest \
-    --out=sample1.out.c sample.c
-gcc sample1.out.c -o sample1.out -gdwarf-4
+    --out=samplea.out.c sample.c
+gcc samplea.out.c -o samplea.out -gdwarf-4

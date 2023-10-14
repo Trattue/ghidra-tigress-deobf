@@ -304,10 +304,14 @@ class Codegen:
                 return self.__codegen_multop(expr, " * ")
             case "__and__":
                 return self.__codegen_multop(expr, " & ")
+            case "__or__":
+                return self.__codegen_multop(expr, " | ")
             case "__xor__":
                 return self.__codegen_multop(expr, " ^ ")
             case "__lshift__":
                 return self.__codegen_binop(expr, " << ")
+            case "__rshift__":
+                return self.__codegen_binop(expr, " s>> ")
             case "LShR":
                 return self.__codegen_binop(expr, " >> ")
             case "ZeroExt":
@@ -428,6 +432,12 @@ class Codegen:
                 result.expression = f"if_result_{self.__if_result_count}"
                 self.__if_result_count += 1
                 self.__if_label_count += 2
+                return result
+            case "__invert__":
+                result = CodeGenExpr()
+                arg0 = self._codegen_expression(expr.args[0])
+                result.context.extend(arg0.context)
+                result.expression = f"~{arg0}"
                 return result
             case _:
                 result = CodeGenExpr()
