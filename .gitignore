@@ -2,14 +2,17 @@
 /*
 
 # Whitelist src
-!/poetry.lock
-!/pyproject.toml
-!/README.md
-!/plugins/
+!/docs/
 !/samples/
 !/src/
 !/tests/
 !/.gitignore
+!/poetry.lock
+!/pyproject.toml
+!/README.md
+
+# Uncomment the following line if changing the plugin template
+# !/plugins/
 
 # Ignore pycache globally >:(
 **/__pycache__

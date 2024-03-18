@@ -35,6 +35,8 @@ The general workflow looks like this:
    by transpiling the claripy ASTs to P-Code and generating a Ghidra plugin.\
    *Implementation in the [`gtd.frontend`](./src/gtd/frontend) module*
 
+![Visualization of the workflow](./docs/design_flow.png)
+
 ## Usage
 ### Prerequisites
 
@@ -63,24 +65,62 @@ You will find the plugin(s) in the `plugins/` directory. Feel free to play
 around with the samples in the `samples/` folder to become more familiar with
 the functionality.
 
-#### Configuration
+#### Preparing Sample
 
-<details><summary>Example</summary>
+Before creating a configuration, we need to create a sample binary containing a
+Tigress VM. In the `samples/` folder, you will find a binary file called
+`samplea.out`, which is a sample created using the `samplea.c` source file and
+the `samplea.sh` obfuscation script.
+
+Additionally, to later be able to decompile the bytecode in Ghidra, we need to
+extract the VM bytecode into a file. Find the bytecode in Ghidra and use a hex
+editor of your choice to save those bytes to a new file. In the `samples/`
+folder, you will find binary files called `samplea.out.fib` or
+`samplea.out.xtea`; those are bytecodes extracted from the `samplea.out`
+executable.
+
+#### Creating a Configuration
+
+Every configuration file starts by specifying the binary executable to analyze:
+
 ```toml
 # Path relative to the project root directory
 binary_path = "samples/sample1.out"
+```
 
+Then, we specify the different virtual machines in the `virtual_machine` array.
+Here, we specify a VM called `sample1-foobar`:
+
+```toml
 [[virtual_machines]]
 name = "sample1-foobar"
+```
 
-# Offsets to RBP during handler execution
+To be able to track the VM state during symbolic execution, we need to find the
+VPC, VSP, local variables array and the VM parameters of the VM we just defined.
+We specify them relative to RBP; since they're at a negative offset, we omit the
+minus sign:
+
+``` toml
+# Offsets to RBP (during handler execution)
 # We omit the minus sign, in this example vpc is at RBP-0x160 ;)
 [virtual_machines.locations]
 vpc_offset = 0x160
 vsp_offset = 0x158
 locals_offset = 0x50
 internal_offsets = [0x164]
+```
 
+The tool symbolically executes each VM handler seperately. Therefore, it needs
+to know the handler boundaries (start is the first instruction to be executed
+and end is the first instruction not to be executed anymore). Additionally, we
+specify which opcode this handler represents and whether the tool should attempt
+to automatically detect operands by detecting read accesses relative to VPC. If
+this behavior is turned off, you need to declare the operands manually by
+providing an ordered list of their sizes (assuming there is no padding between
+operands):
+
+``` toml
 # Array of handlers: 
 [[virtual_machines.handlers]]
 opcode = 0x1
@@ -99,19 +139,30 @@ detect_operands = false
 operands = [4, 8]
 
 [...]
+```
 
+Lastly, we define an array of functions called by the VM. There, we specify for
+each function its address and argument count. While technically optional, it
+improves the quality of the decompilation results:
+
+``` toml
 [[virtual_machines.functions]]
 address = 0x401030
 argument_count = 3
+```
+
+Another example VM definition, this time without funtion calls:
+
+``` toml
 
 [[virtual_machines]]
 name = "sample1-xtea"
 # No functions, so we can define an empty array here
 functions = []
 
+# VM handler definitions here
 [...]
 ```
-</details>
 
 ## Development
 ### Code Style
