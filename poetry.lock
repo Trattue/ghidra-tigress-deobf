@@ -865,6 +865,22 @@ files = [
 plumbum = "*"
 
 [[package]]
+name = "setuptools"
+version = "69.2.0"
+description = "Easily download, build, install, upgrade, and uninstall Python packages"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "setuptools-69.2.0-py3-none-any.whl", hash = "sha256:c21c49fb1042386df081cb5d86759792ab89efca84cf114889191cd09aacc80c"},
+    {file = "setuptools-69.2.0.tar.gz", hash = "sha256:0ff4183f8f42cd8fa3acea16c45205521a4ef28f73c6391d8a25e92893134f2e"},
+]
+
+[package.extras]
+docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "rst.linker (>=1.9)", "sphinx (<7.2.5)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
+testing = ["build[virtualenv]", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.9)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "mypy (==1.9)", "packaging (>=23.2)", "pip (>=19.1)", "pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy (>=0.9.1)", "pytest-perf", "pytest-ruff (>=0.2.1)", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
+testing-integration = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "packaging (>=23.2)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
+
+[[package]]
 name = "smmap"
 version = "5.0.1"
 description = "A pure Python implementation of a sliding window memory map manager"
@@ -940,6 +956,7 @@ files = [
     {file = "z3_solver-4.10.2.0-py2.py3-none-macosx_10_16_x86_64.whl", hash = "sha256:8c9e0b4df63e7008297d0cbd83655903cec3d0f8119d4b279fa80a2ae2dfcf0b"},
     {file = "z3_solver-4.10.2.0-py2.py3-none-macosx_11_0_arm64.whl", hash = "sha256:5686cb33148db4a3dc7bbe3faec0fdb631c86512c69c6c4971c5d805f764c713"},
     {file = "z3_solver-4.10.2.0-py2.py3-none-manylinux1_x86_64.whl", hash = "sha256:d2b3dd443f5fe867b051a5745f56da34ec5364008e3d7d48aa091300af7d5349"},
+    {file = "z3_solver-4.10.2.0-py2.py3-none-manylinux2014_aarch64.whl", hash = "sha256:75805d9074463819962f04ebad71a9670b52df0e8ffbb10a7dcfeb98fe4b6724"},
     {file = "z3_solver-4.10.2.0-py2.py3-none-win32.whl", hash = "sha256:9e24f5a0bb71a8d46c41554f6d3ad9787e27459a22e064477dbcfa2a6c4ef54a"},
     {file = "z3_solver-4.10.2.0-py2.py3-none-win_amd64.whl", hash = "sha256:ca3b3be7061f0d594d446ee03984fdc1befb73a8fc802e48b18e31a682940fa7"},
 ]
@@ -947,4 +964,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "e31111f3cf9506f5278ed275ee9203edf7ac4c324ffc6c5d85eff32482024ade"
+content-hash = "ca96a50cac9d6574c9dbf39c8535745d550ee9cad76cb6197161a75c27b5c23e"

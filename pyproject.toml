@@ -9,6 +9,7 @@ packages = [{include = "gtd", from = "src"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 angr = "^9.2.55"
+setuptools = "^69.2.0"
 
 [build-system]
 requires = ["poetry-core"]
