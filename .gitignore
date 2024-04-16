@@ -7,9 +7,11 @@
 !/src/
 !/tests/
 !/.gitignore
+!/Dockerfile
 !/poetry.lock
 !/pyproject.toml
 !/README.md
+!/run_docker.sh
 
 # Uncomment the following line if changing the plugin template
 # !/plugins/

@@ -30,7 +30,7 @@ class Codegen:
         sizes: set[int] = set()
         operands: dict[int, set[int]] = {}
         for handler in self.config.handlers:
-            for (index, size) in handler.operands.values():
+            for index, size in handler.operands.values():
                 sizes.add(size)
                 if size not in operands:
                     operands[size] = set()
