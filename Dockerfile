@@ -9,5 +9,5 @@ RUN	poetry install --no-root \
 	&& rm -rf $POETRY_CACHE_DIR
 COPY	.	.
 RUN	poetry install
-ENTRYPOINT	["poetry","run","main"]
-CMD	["samples/samplea.toml"]
+ENTRYPOINT	["poetry","run"]
+CMD	["main","samples/samplea.toml"]

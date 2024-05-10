@@ -20,8 +20,11 @@ def simulate_vm(path: str, config: Config) -> list[StateGraph]:
 def simulate_handler(
     project: angr.Project, handler: Handler, config: Config
 ) -> StateGraph:
-    print(f"[+] Simulating handler {hex(handler.opcode)}...")
+    print(
+        f"[+] Simulating handler {hex(handler.opcode)} {hex(handler.start)} -> {hex(handler.end)}..."
+    )
     vpc = claripy.BVS("vpc", 64)
+
     hooks = Hooks(config, vpc)
     simulation = create_simulation(project, handler.start, config.locations, hooks, vpc)
     simulation.explore(find=handler.end, num_find=999)
@@ -77,5 +80,6 @@ def create_simulation(
     state.inspect.b("call", action=hooks.call, when=angr.state_plugins.BP_AFTER)
     state.inspect.b("exit", action=hooks.exit)
     state.inspect.b("fork", action=hooks.fork, when=angr.state_plugins.BP_AFTER)
+    state.inspect.b("instruction", action=hooks.instruction)
 
     return project.factory.simgr(state)

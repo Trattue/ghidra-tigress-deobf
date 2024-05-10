@@ -5,6 +5,8 @@ from gtd.frontend.sim_actions import (
     SimActionEnd,
     SimActionFork,
     SimActionJump,
+    SimActionJumpTable,
+    SimActionJumpTableTarget,
 )
 
 
@@ -15,6 +17,7 @@ class Hooks:
         self.__read_expr_count = 0
         self.__fork_id = 0
         self.operands: set[tuple[int, int]] = set()
+        self.jt_targets: set[int] = set()
 
     def mem_read(self, state):
         length = state.inspect.mem_read_length
@@ -31,9 +34,10 @@ class Hooks:
         ):
             return
 
-        state.inspect.mem_read_expr = claripy.BVS(
-            f"read_{self.__read_expr_count}", length * 8
-        )
+        # TODO fix this :(
+        # state.inspect.mem_read_expr = claripy.BVS(
+        #    f"read_{self.__read_expr_count}", length * 8
+        # )
         self.__read_expr_count += 1
 
         # Arguments
@@ -84,6 +88,16 @@ class Hooks:
         target = state.inspect.exit_target
         guard = state.inspect.exit_guard
         a = SimActionJump(state, target, guard)
+        if target.op == "If":
+            # Switch case special case... angr encodes switch case dispatching in a weird way
+            # where the guard is true but the target is an if-expression...
+            target = claripy.simplify(target)
+            jumps = dict()
+            jump_table(target, jumps)
+            for addr in jumps:
+                self.jt_targets.add(addr)
+            a = SimActionJumpTable(state, self.__fork_id, jumps)
+            self.__fork_id += 1
         state.history.add_action(a)
 
     # TODO idea: instead of giving forks an id, create SimActionStart with id?
@@ -99,3 +113,14 @@ class Hooks:
         a = SimActionEnd(state, self.__fork_id)
         self.__fork_id += 1
         state.history.add_action(a)
+
+    def instruction(self, state):
+        insn = state.inspect.instruction
+        if insn in self.jt_targets:
+            state.history.add_action(SimActionJumpTableTarget(state, insn))
+
+
+def jump_table(target, jumps: dict[int, claripy.ast.bool.Bool]):
+    jumps[target.args[1]._model_concrete.value] = target.args[0]
+    if target.args[2].symbolic or target.args[2]._model_concrete.value != 0xC0DEB4BE:
+        jump_table(target.args[2], jumps)

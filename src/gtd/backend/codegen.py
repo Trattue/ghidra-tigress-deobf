@@ -1,11 +1,10 @@
 import math
 
 import claripy
-from gtd import config
-from gtd.config.handler import Handler
 import gtd.frontend.statement
 from gtd.backend.expression import CodeGenExpr
 from gtd.config import Config
+from gtd.config.handler import Handler
 from gtd.frontend.graph import StateGraph
 from gtd.frontend.state import State
 
@@ -233,12 +232,24 @@ class Codegen:
                 result.context.extend(arg0.context)
                 result.context.extend(arg1.context)
                 result.expression = f"({arg0.expression}) != ({arg1.expression})"
+            case "__gt__":
+                arg0 = self._codegen_expression(expression.args[0])
+                arg1 = self._codegen_expression(expression.args[1])
+                result.context.extend(arg0.context)
+                result.context.extend(arg1.context)
+                result.expression = f"({arg0.expression}) > ({arg1.expression})"
             case "__lt__":
                 arg0 = self._codegen_expression(expression.args[0])
                 arg1 = self._codegen_expression(expression.args[1])
                 result.context.extend(arg0.context)
                 result.context.extend(arg1.context)
                 result.expression = f"({arg0.expression}) < ({arg1.expression})"
+            case "__le__":
+                arg0 = self._codegen_expression(expression.args[0])
+                arg1 = self._codegen_expression(expression.args[1])
+                result.context.extend(arg0.context)
+                result.context.extend(arg1.context)
+                result.expression = f"({arg0.expression}) <= ({arg1.expression})"
             case "SLT":
                 arg0 = self._codegen_expression(expression.args[0])
                 arg1 = self._codegen_expression(expression.args[1])

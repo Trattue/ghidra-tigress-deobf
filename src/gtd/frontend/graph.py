@@ -4,7 +4,11 @@ import gtd.frontend.sim_actions
 from gtd.config.handler import Handler
 from gtd.config.locations import Locations
 from gtd.frontend.state import State
-from gtd.frontend.statement import CallStatement, ReadStatement, WriteStatement
+from gtd.frontend.statement import (
+    CallStatement,
+    ReadStatement,
+    WriteStatement,
+)
 
 
 class StateGraph:
@@ -81,6 +85,8 @@ class StateGraph:
         current_jump = None
         saved_jump = None
         saved_id = self.START_ID
+        # (previous state, target address) -> guard
+        jump_table: dict[tuple[int, int], claripy.ast.bool.Bool] = {}
 
         for action in solution.history.actions.hardcopy:
             match type(action):
@@ -145,6 +151,37 @@ class StateGraph:
                     saved_id = id
                     self.nodes[id] = current
                     current = new_current
+                case gtd.frontend.sim_actions.SimActionJumpTable:
+                    # Similar behavior to forks, but we need to save our jump table.
+                    # Set current ID:
+                    id = action.id
+                    current.id = id
+                    new_current = State(self.START_ID)
+                    new_current.predecessors.add(id)
+
+                    # Jumps to this state:
+                    if saved_jump != None:
+                        self.nodes[saved_id].jumps[id] = saved_jump
+                    saved_jump = current_jump
+                    current_jump = None
+
+                    # Fill jump table
+                    for target, guard in action.jumps.items():
+                        jump_table[(id, target)] = guard
+
+                    # Check for duplicates
+                    if self.nodes.get(id) != None:
+                        self.nodes[id].predecessors.union(current.predecessors)
+                        current = new_current
+                        saved_id = id
+                        continue
+
+                    saved_id = id
+                    self.nodes[id] = current
+                    current = new_current
+                case gtd.frontend.sim_actions.SimActionJumpTableTarget:
+                    if saved_jump == None and (saved_id, action.addr) in jump_table:
+                        saved_jump = jump_table[(saved_id, action.addr)]
                 case gtd.frontend.sim_actions.SimActionEnd:
                     # Since this is the last state in a solution, we can omit cleanup of
                     # some variables and creation of the next state. Apart from that,
