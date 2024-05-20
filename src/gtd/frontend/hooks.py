@@ -38,6 +38,12 @@ class Hooks:
         # state.inspect.mem_read_expr = claripy.BVS(
         #    f"read_{self.__read_expr_count}", length * 8
         # )
+        left = state.inspect.mem_read_expr
+        if not str(left.args[0]).startswith("mem_") and left.op != "If":
+            # print(f"{left.op} ~ {left.args}")
+            state.inspect.mem_read_expr = claripy.BVS(
+                f"read_{self.__read_expr_count}", length * 8
+            )
         self.__read_expr_count += 1
 
         # Arguments

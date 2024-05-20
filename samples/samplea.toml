@@ -342,7 +342,7 @@ detect_operands = true
 [[virtual_machines.handlers]]
 opcode = 0x77
 start = 0x401886
-end = 0x401959
+end = 0x40160d
 detect_operands = true
 
 [[virtual_machines.handlers]]

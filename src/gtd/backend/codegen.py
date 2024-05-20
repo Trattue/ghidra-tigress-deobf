@@ -162,6 +162,13 @@ class Codegen:
                 ):
                     return ""
 
+                # We ignore the weird read generated during the execution of switch cases.
+                if (
+                    not str(stmt.data.args[0]).startswith("mem_")
+                    and stmt.data.op == "If"
+                ):
+                    return ""
+
                 result = CodeGenExpr()
 
                 length = math.ceil(stmt.data.length / 8)
