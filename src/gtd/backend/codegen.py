@@ -19,6 +19,7 @@ class Codegen:
         self.__extract_count = 0
         self.__zext_count = 0
         self.__sext_count = 0
+        self.__local_names: dict[str, int] = {}
 
     def codegen_vm(self, graphs: list[StateGraph]) -> str:
         print(f"[+] Codegen VM {self.config.vm_name}...")
@@ -63,6 +64,7 @@ class Codegen:
         self.__extract_count = 0
         self.__zext_count = 0
         self.__sext_count = 0
+        self.__local_names = {}
 
         # Structure definition
         hex_opcode = hex(graph.handler.opcode)
@@ -172,7 +174,15 @@ class Codegen:
                 result = CodeGenExpr()
 
                 length = math.ceil(stmt.data.length / 8)
-                left_side = f"local {stmt.data.args[0]}:{length} = "
+                # Deal with the same local variable being reused... we need to make
+                # those unique for Ghidra to accept them
+                ctr = 0
+                if stmt.data.args[0] in self.__local_names:
+                    ctr = self.__local_names[stmt.data.args[0]] + 1
+                    self.__local_names[stmt.data.args[0]] = ctr
+                else:
+                    self.__local_names[stmt.data.args[0]] = 0
+                left_side = f"{stmt.data.args[0]}__{ctr}:{length} = "
 
                 origin = self._codegen_expression(stmt.origin)
                 result.context.extend(origin.context)
@@ -180,7 +190,8 @@ class Codegen:
 
                 # Argument support. We check if origin is at an offset to vpc; if that
                 # is the case, it likely is an operand. To filter out data accesses
-                # relative to vpc that are not arguments, we limit the offset to 420 bytes.
+                # relative to vpc that are not arguments, we limit the offset to 420
+                # bytes.
                 sym_offset = claripy.simplify(stmt.origin - vpc)
                 if (
                     sym_offset.op != "BVS"
@@ -275,6 +286,12 @@ class Codegen:
                 result.context.extend(arg0.context)
                 result.context.extend(arg1.context)
                 result.expression = f"({arg0.expression}) s> ({arg1.expression})"
+            case "SGE":
+                arg0 = self._codegen_expression(expression.args[0])
+                arg1 = self._codegen_expression(expression.args[1])
+                result.context.extend(arg0.context)
+                result.context.extend(arg1.context)
+                result.expression = f"({arg0.expression}) s>= ({arg1.expression})"
             case _:
                 result.expression = f"[NOT IMPLEMENTED BOOL: {expression.op}]"
         return result
@@ -312,7 +329,7 @@ class Codegen:
                 elif name.startswith("fake_ret_value"):
                     result.expression = "param1"
                 else:
-                    result.expression = f"{expr.args[0]}"
+                    result.expression = self.__unique_local_symbol(expr.args[0])
                 return result
             case "__add__":
                 return self.__codegen_multop(expr, " + ")
@@ -479,3 +496,9 @@ class Codegen:
         result.context.extend(arg1.context)
         result.expression = f"{arg0.expression}{op}{arg1.expression}"
         return result
+
+    def __unique_local_symbol(self, name: str) -> str:
+        ctr = 0
+        if name in self.__local_names:
+            ctr = self.__local_names[name]
+        return f"{name}__{ctr}"
