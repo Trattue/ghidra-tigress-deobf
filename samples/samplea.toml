@@ -7,6 +7,7 @@ binary_path = "samples/samplea.out"
 
 [[virtual_machines]]
 name = "samplea-fib"
+default_end = 0x401171
 
 [virtual_machines.locations]
 vpc_offset = 0x160
@@ -17,31 +18,26 @@ internal_offsets = [0x164]
 [[virtual_machines.handlers]]
 opcode = 0xad
 start = 0x401184
-end = 0x4011de
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xa8
 start = 0x4011e6
-end = 0x401232
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xf2
 start = 0x40123d
-end = 0x401264
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xaf
 start = 0x40126f
-end = 0x4012d0
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x99
 start = 0x4012db
-end = 0x401324
 detect_operands = true
 
 [[virtual_machines.handlers]]
@@ -53,49 +49,41 @@ detect_operands = true
 [[virtual_machines.handlers]]
 opcode = 0x14
 start = 0x40134c
-end = 0x401389
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x7e
 start = 0x401394
-end = 0x4013c2
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xf3
 start = 0x4013cd
-end = 0x40140c
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x12
 start = 0x401417
-end = 0x40143d
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xb7
 start = 0x401448
-end = 0x4014a1
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x3
 start = 0x4014ac
-end = 0x4014fb
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xb2
 start = 0x401506
-end = 0x401571
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x3e
 start = 0x401580
-end = 0x4015d7
 detect_operands = true
 
 [[virtual_machines.functions]]
@@ -108,6 +96,7 @@ argument_count = 3
 
 [[virtual_machines]]
 name = "samplea-xtea"
+default_end = 0x4019e7
 functions = []
 
 [virtual_machines.locations]
@@ -119,163 +108,136 @@ internal_offsets = [0x168, 0x170, 0x178]
 [[virtual_machines.handlers]]
 opcode = 0x1b
 start = 0x4019fa
-end = 0x401a23
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x52
 start = 0x401a2b
-end = 0x401a77
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x98
 start = 0x401a82
-end = 0x401acf
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x59
 start = 0x401ada
-end = 0x401b3b
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x81
 start = 0x401b46
-end = 0x401b93
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x32
 start = 0x401b9e
-end = 0x401bcc
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xe4
 start = 0x401bd7
-end = 0x401c25
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x31
 start = 0x401c30
-end = 0x401c7e
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xdc
 start = 0x401c8d
-end = 0x401d23
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x6b
 start = 0x401d2e
-end = 0x401d54
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xf8
 start = 0x401d5f
-end = 0x401d88
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xf2
 start = 0x401d93
-end = 0x401de4
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x55
 start = 0x401def
-end = 0x401e18
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x21
 start = 0x401e23
-end = 0x401e70
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x90
 start = 0x401e7b
-end = 0x401ecd
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xd4
 start = 0x401ed8
-end = 0x401f26
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x7a
 start = 0x401f31
-end = 0x401f70
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x39
 start = 0x401f7b
-end = 0x401fd2
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x5e
 start = 0x401fdd
-end = 0x40201c
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xd1
 start = 0x402027
-end = 0x40204d
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x2b
 start = 0x402058
-end = 0x402080
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xe3
 start = 0x40208b
-end = 0x4020d8
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xdf
 start = 0x4020e3
-end = 0x402134
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x8
 start = 0x40213f
-end = 0x402168
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x70
 start = 0x402173
-end = 0x4021c5
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xc3
 start = 0x4021d0
-end = 0x40221d
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xab
 start = 0x402228
-end = 0x40224e
 detect_operands = true
 
 [[virtual_machines.handlers]]
@@ -290,6 +252,7 @@ detect_operands = true
 
 [[virtual_machines]]
 name = "samplea-interact"
+default_end = 0x40160d
 
 [virtual_machines.locations]
 vpc_offset = 0x170
@@ -300,13 +263,11 @@ internal_offsets = []
 [[virtual_machines.handlers]]
 opcode = 0x9e
 start = 0x401624
-end = 0x4016f7
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x98
 start = 0x401702
-end = 0x401728
 detect_operands = true
 
 [[virtual_machines.handlers]]
@@ -318,42 +279,36 @@ detect_operands = true
 [[virtual_machines.handlers]]
 opcode = 0xd7
 start = 0x401750
-end = 0x4017aa
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x1
 start = 0x4017b5
-end = 0x40180c
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x6c
 start = 0x401817
-end = 0x401845
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xa
 start = 0x401850
-end = 0x401877
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x77
 start = 0x401886
-end = 0x40160d
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x7c
 start = 0x401968
-end = 0x4019a7
 detect_operands = true
 
 # printf
 [[virtual_machines.functions]]
-address = 0x401030
+address = 0x401040
 argument_count = 1
 
 # puts

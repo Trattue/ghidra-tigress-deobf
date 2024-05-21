@@ -27,8 +27,9 @@ def main():
 
 def parse_vm_config(vm_config) -> Config:
     name = vm_config["name"]
+    default_end: int = vm_config["default_end"]
     locations = parse_locations_config(vm_config["locations"])
-    handlers = parse_handlers_config(vm_config["handlers"])
+    handlers = parse_handlers_config(vm_config["handlers"], default_end)
     functions = parse_functions_config(vm_config["functions"])
     return Config(name, locations, handlers, functions)
 
@@ -42,12 +43,14 @@ def parse_locations_config(locations_config) -> Locations:
     )
 
 
-def parse_handlers_config(handlers_config) -> list[Handler]:
+def parse_handlers_config(handlers_config, default_end: int) -> list[Handler]:
     result = []
     for handler in handlers_config:
         opcode: int = handler["opcode"]
         start: int = handler["start"]
-        end: int = handler["end"]
+        end: int = default_end
+        if "end" in handler:
+            end = handler["end"]
         detect_operands: bool = handler["detect_operands"]
         if detect_operands:
             result.append(Handler(opcode, start, end, Handler.DETECT_OPERANDS))
