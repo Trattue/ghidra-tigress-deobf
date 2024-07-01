@@ -142,7 +142,7 @@ class Codegen:
                 # the cases more clearly...
                 target = self._codegen_expression(stmt.target)
                 result.context.extend(target.context)
-                left_side = f"*{target.expression} = "
+                left_side = f"*({target.expression}) = "
                 if stmt.target.concrete:
                     if stmt.target.args[0] == self.config.locations.vpc:
                         left_side = f"vpc = "
@@ -182,7 +182,7 @@ class Codegen:
                     self.__local_names[stmt.data.args[0]] = ctr
                 else:
                     self.__local_names[stmt.data.args[0]] = 0
-                left_side = f"{stmt.data.args[0]}__{ctr}:{length} = "
+                left_side = f"local {stmt.data.args[0]}__{ctr}:{length} = "
 
                 origin = self._codegen_expression(stmt.origin)
                 result.context.extend(origin.context)
