@@ -1,3 +1,6 @@
+from typing import Self
+
+
 class Handler:
     """
     Information about a VM handler.
@@ -24,6 +27,20 @@ class Handler:
         self.start = start
         self.end = end
         self.set_operand_sizes(operand_sizes)
+
+    @classmethod
+    def parse(cls, handler_config, default_end: int) -> Self:
+        opcode: int = handler_config["opcode"]
+        start: int = handler_config["start"]
+        end: int = default_end
+        if "end" in handler_config:
+            end = handler_config["end"]
+        detect_operands: bool = handler_config["detect_operands"]
+        if detect_operands:
+            return cls(opcode, start, end, Handler.DETECT_OPERANDS)
+        else:
+            operands: list[int] = handler_config["operands"]
+            return cls(opcode, start, end, *operands)
 
     def set_operand_sizes(self, operand_sizes: tuple[int, ...]):
         self.operand_sizes: tuple[int, ...] = operand_sizes

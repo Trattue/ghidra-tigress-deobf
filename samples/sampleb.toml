@@ -92,6 +92,7 @@ start = 0x401f5d
 detect_operands = true
 
 [[virtual_machines.functions]]
+name = "printf"
 address = 0x401040
 argument_count = 3
 
@@ -316,18 +317,18 @@ opcode = 0x79
 start = 0x4015e9
 detect_operands = true
 
-# puts
 [[virtual_machines.functions]]
+name = "puts"
 address = 0x401030
 argument_count = 1
 
-# printf
 [[virtual_machines.functions]]
+name = "printf"
 address = 0x401040
 argument_count = 1
 
-# scanf
 [[virtual_machines.functions]]
+name = "scanf"
 address = 0x401050
 argument_count = 3
 

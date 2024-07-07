@@ -17,5 +17,4 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 main = "gtd.__main__:main"
-cfix = "gtd-auto.__main__:cfix_main"
-plugin = "gtd-auto.__main__:plugin_main"
+auto = "gtd-auto.__main__:auto_main"

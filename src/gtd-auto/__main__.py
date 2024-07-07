@@ -2,14 +2,74 @@ import argparse
 import re
 import subprocess
 import os
+import tomllib
+from pathlib import Path
+
+from gtd.config import Config
 
 
-def cfix_main():
+# /opt/homebrew/Caskroom/ghidra/11.1.1-20240614/ghidra_11.1.1_PUBLIC/
+def auto_main():
     p = argparse.ArgumentParser()
-    p.add_argument("input_c")
-    p.add_argument("output_c")
+    p.add_argument("dir")
+    p.add_argument("ghidra_install_dir")
     args = p.parse_args()
-    fix_c_file(args.input_c, args.output_c)
+    # Step 1: Config files -> processor specs
+    # gen_processor_specs(args.dir)
+    # Step 2: Compile processor specs to plugins
+    # compile_plugins(args.ghidra_install_dir)
+    # Step 3: Plugins -> pseudo code files
+    # TODO :(
+    input("now cfix, r u ready?")
+    # Step 4: Pseudo code -> C files
+    fix_c_files(args.dir)
+
+
+##############################
+# CONFIGS -> PROCESSOR SPECS #
+#############################
+def gen_processor_specs(config_dir: str):
+    for file in os.scandir(config_dir):
+        if file.is_file and file.name.endswith(".toml"):
+            gen_processor_spec(file.path)
+
+
+def gen_processor_spec(config_path: str):
+    # Use docker since a dependency of angr doesn't support ARM...
+    subprocess.call(f"./run_docker.sh main {config_path}", shell=True)
+
+
+##############################
+# PROCESSOR SPECS -> PLUGINS #
+##############################
+def compile_plugins(ghidra_dir: str):
+    dirs = [f.path for f in os.scandir("plugins/") if f.is_dir]
+    for d in dirs:
+        # assuming dir to start with plugin/
+        if d[8:].startswith("tigress-"):
+            compile_plugin(d, ghidra_dir)
+
+
+def compile_plugin(plugin_dir: str, ghidra_dir: str):
+    subprocess.call(
+        f"cd {plugin_dir}; gradle -PGHIDRA_INSTALL_DIR={ghidra_dir}",
+        shell=True,
+    )
+
+
+##########################
+# PSEUDO CODE -> C FILES #
+##########################
+def fix_c_files(config_dir: str):
+    for file in os.scandir(config_dir):
+        if file.is_file and file.name.endswith(".toml"):
+            with open(file.path, mode="rb") as f:
+                toml_config = tomllib.load(f)
+                for vm in toml_config["virtual_machines"]:
+                    config = Config.parse(vm)
+                    input = f"{Path(config_dir).as_posix()}/{config.vm_name}.dec"
+                    output = f"{Path(config_dir).as_posix()}/{config.vm_name}.dec.c"
+                    fix_c_file(input, output, config)
 
 
 C_FIX = """#define vm /*nothing*/
@@ -18,7 +78,9 @@ typedef unsigned long long ulonglong;
 """
 
 
-def fix_c_file(input_path: str, output_path: str):
+def fix_c_file(input_path: str, output_path: str, config: Config):
+    if not Path(input_path).exists():
+        return
     with open(input_path, "r") as i:
         with open(output_path, "w+") as o:
             # C FIX
@@ -54,6 +116,10 @@ def fix_c_file(input_path: str, output_path: str):
             o.write("///////\n")
 
             i.seek(0)
+            # FUNCTIONS, part 1
+            functions: dict[int, str] = {}
+            for f in config.functions:
+                functions[f.address] = f.name
             for i_line in i:
                 # PARAMS, part 2
                 x = re.search("(void \\w+\\()void(\\))", i_line)
@@ -80,21 +146,12 @@ def fix_c_file(input_path: str, output_path: str):
                     (_, b) = x.span()
                     o.write(f"{i_line[:b-1]} = &locals{i_line[b-1:]}")
                     continue
+
+                # FUNCTIONS, part 2
+                x = re.findall("func_0x\\d{8}", i_line)
+                if len(x) > 0:
+                    for f in x:
+                        addr = int(f[5:], base=16)
+                        i_line = i_line.replace(f, functions[addr])
+
                 o.write(i_line)
-
-
-# /opt/homebrew/Caskroom/ghidra/11.1.1-20240614/ghidra_11.1.1_PUBLIC/
-def plugin_main():
-    p = argparse.ArgumentParser()
-    p.add_argument("ghidra_install_dir")
-    args = p.parse_args()
-    ghidra = args.ghidra_install_dir
-
-    dirs = [f.path for f in os.scandir("plugins/") if f.is_dir]
-    for dir in dirs:
-        # assuming dir to start with plugin/
-        if dir[8:].startswith("tigress-"):
-            subprocess.call(
-                f"cd {dir}; gradle -PGHIDRA_INSTALL_DIR={ghidra}",
-                shell=True,
-            )
