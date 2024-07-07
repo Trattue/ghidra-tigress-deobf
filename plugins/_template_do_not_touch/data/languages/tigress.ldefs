@@ -8,7 +8,7 @@
               version="1.0"
               slafile="tigress.sla"
               processorspec="tigress.pspec"
-              id="tigressvm:LE:64">
+              id="tigressvm-%NAME%:LE:64">
         <description>Tigress VM (%NAME%)</description>
         <compiler name="default" spec="tigress.cspec" id="default"/>
     </language>

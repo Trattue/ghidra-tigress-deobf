@@ -20,9 +20,10 @@ def auto_main():
     # compile_plugins(args.ghidra_install_dir)
     # Step 3: Plugins -> pseudo code files
     # TODO :(
-    input("now cfix, r u ready?")
+    plugin_stuff(args.ghidra_install_dir)
+    # input("now cfix, r u ready?")
     # Step 4: Pseudo code -> C files
-    fix_c_files(args.dir)
+    # fix_c_files(args.dir)
 
 
 ##############################
@@ -43,6 +44,10 @@ def gen_processor_spec(config_path: str):
 # PROCESSOR SPECS -> PLUGINS #
 ##############################
 def compile_plugins(ghidra_dir: str):
+    # remoce old plugins from Ghidra extension folder
+    print("\npress any key to continue...")
+    input("THIS WILL UNINSTALL YOUR OLD TIGRESS PLUGINS FROM YOUR GHIDRA DIR\n")
+    subprocess.call(f"rm -r {ghidra_dir}/Ghidra/Extensions/tigress-*/", shell=True)
     dirs = [f.path for f in os.scandir("plugins/") if f.is_dir]
     for d in dirs:
         # assuming dir to start with plugin/
@@ -55,6 +60,27 @@ def compile_plugin(plugin_dir: str, ghidra_dir: str):
         f"cd {plugin_dir}; gradle -PGHIDRA_INSTALL_DIR={ghidra_dir}",
         shell=True,
     )
+    # install plugin to Ghidra extendion folder
+    subprocess.call(
+        f"unzip '{plugin_dir}/dist/*.zip' -d {ghidra_dir}Ghidra/Extensions/", shell=True
+    )
+
+
+################################
+# PLUGINS -> PSEUDO CODE FILES #
+################################
+
+
+def plugin_stuff(ghidra_dir: str):
+    sample = "./samples/samplea-fib"
+    vm_name = "samplea-fib"
+    subprocess.call(
+        f"{ghidra_dir}support/analyzeHeadless samples/ghidra ghidra -import {sample} -processor tigressvm-{vm_name}:LE:64",
+        shell=True,
+    )
+
+
+# ./analyzeHeadless ~/Downloads test -import ~/Development/ghidra-tigress-deobf/samples/samplea-fib -processor tigressvm-{config.vm_name}:LE:64
 
 
 ##########################
