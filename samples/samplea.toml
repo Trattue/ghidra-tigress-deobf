@@ -8,6 +8,8 @@ binary_path = "samples/samplea.out"
 [[virtual_machines]]
 name = "samplea-fib"
 default_end = 0x401171
+bytecode_start = 0x405400
+bytecode_end = 0x4054db
 
 [virtual_machines.locations]
 vpc_offset = 0x160
@@ -98,6 +100,8 @@ argument_count = 3
 [[virtual_machines]]
 name = "samplea-xtea"
 default_end = 0x4019e7
+bytecode_start = 0x405120
+bytecode_end = 0x4053f7
 functions = []
 
 [virtual_machines.locations]
@@ -254,6 +258,8 @@ detect_operands = true
 [[virtual_machines]]
 name = "samplea-interact"
 default_end = 0x40160d
+bytecode_start = 0x405040
+bytecode_end = 0x405104
 
 [virtual_machines.locations]
 vpc_offset = 0x170
@@ -307,19 +313,16 @@ opcode = 0x7c
 start = 0x401968
 detect_operands = true
 
-# printf
 [[virtual_machines.functions]]
 name = "printf"
 address = 0x401040
 argument_count = 1
 
-# puts
 [[virtual_machines.functions]]
 name = "puts"
 address = 0x401030
 argument_count = 1
 
-# scanf
 [[virtual_machines.functions]]
 name = "scanf"
 address = 0x401050

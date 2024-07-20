@@ -8,6 +8,8 @@ binary_path = "samples/samplec.out"
 [[virtual_machines]]
 name = "samplec-xtea"
 default_end = 0x402558
+bytecode_start = 0x407120
+bytecode_end = 0x407351
 functions = []
 
 [virtual_machines.locations]

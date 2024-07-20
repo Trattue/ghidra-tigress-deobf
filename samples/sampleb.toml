@@ -8,6 +8,8 @@ binary_path = "samples/sampleb.out"
 [[virtual_machines]]
 name = "sampleb-fib"
 default_end = 0x401746
+bytecode_start = 0x406360
+bytecode_end = 0x406412
 
 [virtual_machines.locations]
 vpc_offset = 0x160
@@ -103,6 +105,8 @@ argument_count = 3
 [[virtual_machines]]
 name = "sampleb-xtea"
 default_end = 0x40205e
+bytecode_start = 0x406120
+bytecode_end = 0x406351
 functions = []
 
 [virtual_machines.locations]
@@ -264,6 +268,8 @@ detect_operands = true
 [[virtual_machines]]
 name = "sampleb-interact"
 default_end = 0x40116a
+bytecode_start = 0x406040
+bytecode_end = 0x4060f3
 
 [virtual_machines.locations]
 vpc_offset = 0x170

@@ -1,5 +1,7 @@
 import angr
 import claripy
+from pathlib import Path
+
 from gtd.config import Config
 from gtd.config.handler import Handler
 from gtd.config.locations import Locations
@@ -11,6 +13,13 @@ def simulate_vm(path: str, config: Config) -> list[StateGraph]:
     project = angr.Project(path, load_options={"auto_load_libs": False})
 
     print(f"[+] Simulating VM {config.vm_name}")
+    bytecode = project.loader.memory.load(
+        config.bytecode_start, config.bytecode_end - config.bytecode_start
+    )
+    with open(Path(path).parent.joinpath(config.vm_name), "wb") as f:
+        f.write(bytecode)
+        print("[*] Wrote bytecode")
+
     graphs = []
     for handler in config.handlers:
         graphs.append(simulate_handler(project, handler, config))

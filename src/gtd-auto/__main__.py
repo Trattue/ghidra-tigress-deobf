@@ -18,12 +18,18 @@ def auto_main():
     # gen_processor_specs(args.dir)
     # Step 2: Compile processor specs to plugins
     # compile_plugins(args.ghidra_install_dir)
-    # Step 3: Plugins -> pseudo code files
     # TODO :(
-    plugin_stuff(args.ghidra_install_dir)
-    # input("now cfix, r u ready?")
-    # Step 4: Pseudo code -> C files
-    # fix_c_files(args.dir)
+    for file in os.scandir(args.dir):
+        if file.is_file and file.name.endswith(".toml"):
+            with open(file.path, mode="rb") as f:
+                toml_config = tomllib.load(f)
+                for vm in toml_config["virtual_machines"]:
+                    config = Config.parse(vm)
+                    # Step 3: Plugins -> pseudo code files
+                    plugin_stuff(args.dir, config, args.ghidra_install_dir)
+                    # input("now cfix, r u ready?")
+                    # Step 4: Pseudo code -> C files
+                    # fix_c_files(config, args.dir)
 
 
 ##############################
@@ -45,7 +51,7 @@ def gen_processor_spec(config_path: str):
 ##############################
 def compile_plugins(ghidra_dir: str):
     # remoce old plugins from Ghidra extension folder
-    print("\npress any key to continue...")
+    print("\npress enter to continue...")
     input("THIS WILL UNINSTALL YOUR OLD TIGRESS PLUGINS FROM YOUR GHIDRA DIR\n")
     subprocess.call(f"rm -r {ghidra_dir}/Ghidra/Extensions/tigress-*/", shell=True)
     dirs = [f.path for f in os.scandir("plugins/") if f.is_dir]
@@ -71,31 +77,21 @@ def compile_plugin(plugin_dir: str, ghidra_dir: str):
 ################################
 
 
-def plugin_stuff(ghidra_dir: str):
-    sample = "./samples/samplea-fib"
-    vm_name = "samplea-fib"
+def plugin_stuff(config_dir: str, config: Config, ghidra_dir: str):
+    sample = f"{Path(config_dir).as_posix()}/{config.vm_name}"
     subprocess.call(
-        f"{ghidra_dir}support/analyzeHeadless samples/ghidra ghidra -import {sample} -processor tigressvm-{vm_name}:LE:64",
+        f"{ghidra_dir}support/analyzeHeadless samples/ghidra ghidra -import {sample} -processor tigressvm-{config.vm_name}:LE:64 -loader BinaryLoader -postScript Export.java",
         shell=True,
     )
-
-
-# ./analyzeHeadless ~/Downloads test -import ~/Development/ghidra-tigress-deobf/samples/samplea-fib -processor tigressvm-{config.vm_name}:LE:64
 
 
 ##########################
 # PSEUDO CODE -> C FILES #
 ##########################
-def fix_c_files(config_dir: str):
-    for file in os.scandir(config_dir):
-        if file.is_file and file.name.endswith(".toml"):
-            with open(file.path, mode="rb") as f:
-                toml_config = tomllib.load(f)
-                for vm in toml_config["virtual_machines"]:
-                    config = Config.parse(vm)
-                    input = f"{Path(config_dir).as_posix()}/{config.vm_name}.dec"
-                    output = f"{Path(config_dir).as_posix()}/{config.vm_name}.dec.c"
-                    fix_c_file(input, output, config)
+def fix_c_files(config: Config, config_dir: str):
+    input = f"{Path(config_dir).as_posix()}/{config.vm_name}.dec"
+    output = f"{Path(config_dir).as_posix()}/{config.vm_name}.dec.c"
+    fix_c_file(input, output, config)
 
 
 C_FIX = """#define vm /*nothing*/

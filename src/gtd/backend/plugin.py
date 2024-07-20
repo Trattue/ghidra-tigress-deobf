@@ -20,6 +20,7 @@ def generate_plugin(vm_name: str, slaspec_content: str):
         languages + "tigress.ldefs",
         languages + "tigress.pspec",
         new_path + ".project",
+        new_path + "ghidra_scripts/Export.java",
     ]
     for target in targets:
         with open(target, "r") as file:
