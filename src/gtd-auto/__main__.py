@@ -14,11 +14,19 @@ def auto_main():
     p.add_argument("dir")
     p.add_argument("ghidra_install_dir")
     args = p.parse_args()
+    print("THIS SCRIPT WILL PERFORM DESTRUCTIVE OPERATIONS:")
+    print(
+        "- create files in the samples/ and plugins/ directories (may overwrite old versions)"
+    )
+    print("- uninstall your old generated Tigress plugins from your Ghidra directory")
+    print("- modify the Ghidra project in the plugins/ghidra directory")
+    print("- possibly more stuff we forgot to mention here...")
+    input("PRESS ENTER TO CONTINUE\n")
+
     # Step 1: Config files -> processor specs
-    # gen_processor_specs(args.dir)
+    gen_processor_specs(args.dir)
     # Step 2: Compile processor specs to plugins
-    # compile_plugins(args.ghidra_install_dir)
-    # TODO :(
+    compile_plugins(args.ghidra_install_dir)
     for file in os.scandir(args.dir):
         if file.is_file and file.name.endswith(".toml"):
             with open(file.path, mode="rb") as f:
@@ -27,9 +35,8 @@ def auto_main():
                     config = Config.parse(vm)
                     # Step 3: Plugins -> pseudo code files
                     plugin_stuff(args.dir, config, args.ghidra_install_dir)
-                    # input("now cfix, r u ready?")
                     # Step 4: Pseudo code -> C files
-                    # fix_c_files(config, args.dir)
+                    fix_c_files(config, args.dir)
 
 
 ##############################
@@ -51,8 +58,6 @@ def gen_processor_spec(config_path: str):
 ##############################
 def compile_plugins(ghidra_dir: str):
     # remoce old plugins from Ghidra extension folder
-    print("\npress enter to continue...")
-    input("THIS WILL UNINSTALL YOUR OLD TIGRESS PLUGINS FROM YOUR GHIDRA DIR\n")
     subprocess.call(f"rm -r {ghidra_dir}/Ghidra/Extensions/tigress-*/", shell=True)
     dirs = [f.path for f in os.scandir("plugins/") if f.is_dir]
     for d in dirs:
@@ -80,7 +85,7 @@ def compile_plugin(plugin_dir: str, ghidra_dir: str):
 def plugin_stuff(config_dir: str, config: Config, ghidra_dir: str):
     sample = f"{Path(config_dir).as_posix()}/{config.vm_name}"
     subprocess.call(
-        f"{ghidra_dir}support/analyzeHeadless samples/ghidra ghidra -import {sample} -processor tigressvm-{config.vm_name}:LE:64 -loader BinaryLoader -postScript Export.java",
+        f"{ghidra_dir}support/analyzeHeadless samples/ghidra ghidra -import {sample} -processor tigressvm-{config.vm_name}:LE:64 -loader BinaryLoader -preScript DisableCoff.java -postScript Export.java",
         shell=True,
     )
 
@@ -97,6 +102,8 @@ def fix_c_files(config: Config, config_dir: str):
 C_FIX = """#define vm /*nothing*/
 #define halt_baddata() /*nothing*/
 typedef unsigned long long ulonglong;
+typedef long long longlong;
+typedef unsigned int uint;
 """
 
 
