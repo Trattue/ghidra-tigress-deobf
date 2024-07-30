@@ -18,3 +18,4 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 main = "gtd.__main__:main"
 auto = "gtd-auto.__main__:auto_main"
+pre = "gtd-pre.__main__:pre_main"
