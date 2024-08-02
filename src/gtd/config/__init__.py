@@ -36,3 +36,17 @@ class Config:
         for function_config in vm_config["functions"]:
             functions.append(Function.parse(function_config))
         return cls(name, bytecode_start, bytecode_end, locations, handlers, functions)
+
+    def unparse(self) -> str:
+        result = (
+            "[[virtual_machines]]\n"
+            f'name = "{self.vm_name}"\n'
+            f"bytecode_start = {hex(self.bytecode_start)}\n"
+            f"bytecode_end = {hex(self.bytecode_end)}\n\n"
+        )
+        result += self.locations.unparse()
+        result += "\n"
+        result += "\n".join(map(lambda h: h.unparse(), self.handlers))
+        result += "\n"
+        result += "\n".join(map(lambda f: f.unparse(), self.functions))
+        return result

@@ -24,3 +24,13 @@ class Locations:
             locals_offset=locations_config["locals_offset"],
             internal_offsets=locations_config["internal_offsets"],
         )
+
+    def unparse(self) -> str:
+        return (
+            "[virtual_machines.locations]\n"
+            f"vpc_offset = {hex(self.RBP - self.vpc)}\n"
+            f"vsp_offset = {hex(self.RBP - self.vsp)}\n"
+            f"vsp_offset = {hex(self.RBP - self.locals)}\n"
+            "internal_offsets = "
+            f"[{', '.join(map(lambda i: hex(self.RBP - i), self.internals))}]\n"
+        )

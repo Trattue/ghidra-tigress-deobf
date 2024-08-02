@@ -28,6 +28,16 @@ class Handler:
         self.end = end
         self.set_operand_sizes(operand_sizes)
 
+    def set_operand_sizes(self, operand_sizes: tuple[int, ...]):
+        self.operand_sizes: tuple[int, ...] = operand_sizes
+        # Calculate operand offsets from sizes. We assume the opcode is 1 byte and all
+        # operands are consecutive in the order passed
+        self.operands: dict[int, tuple[int, int]] = {}
+        offset = 1
+        for i, operand_size in enumerate(operand_sizes):
+            self.operands[offset] = (i, operand_size)
+            offset += operand_size
+
     @classmethod
     def parse(cls, handler_config, default_end: int) -> Self:
         opcode: int = handler_config["opcode"]
@@ -42,12 +52,19 @@ class Handler:
             operands: list[int] = handler_config["operands"]
             return cls(opcode, start, end, *operands)
 
-    def set_operand_sizes(self, operand_sizes: tuple[int, ...]):
-        self.operand_sizes: tuple[int, ...] = operand_sizes
-        # Calculate operand offsets from sizes. We assume the opcode is 1 byte and all
-        # operands are consecutive in the order passed
-        self.operands: dict[int, tuple[int, int]] = {}
-        offset = 1
-        for i, operand_size in enumerate(operand_sizes):
-            self.operands[offset] = (i, operand_size)
-            offset += operand_size
+    def unparse(self) -> str:
+        result = (
+            f"[[virtual_machines.handlers]]\n"
+            f"opcode = {hex(self.opcode)}\n"
+            f"start = {hex(self.start)}\n"
+            f"end = {hex(self.end)}\n"
+            "detect_operands = "
+        )
+        if (
+            len(self.operand_sizes) == 1
+            and self.operand_sizes[0] == self.DETECT_OPERANDS
+        ):
+            result += "true\n"
+        else:
+            result += "false\noperands = []"
+        return result

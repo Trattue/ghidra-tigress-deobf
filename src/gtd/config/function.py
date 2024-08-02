@@ -27,3 +27,12 @@ class Function:
             function_config["address"],
             function_config["argument_count"],
         )
+
+    def unparse(self) -> str:
+        return (
+            f"[[virtual_machines.functions]]\n"
+            f'name = "{self.name}"\n'
+            f"address = {hex(self.address)}\n"
+            f"argument_count = {self.arguments} # TODO this may be horrendously wrong, "
+            f"please double check\n"
+        )

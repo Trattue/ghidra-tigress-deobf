@@ -1,7 +1,7 @@
 import argparse
+import os
 import re
 import subprocess
-import os
 import tomllib
 from pathlib import Path
 
@@ -14,6 +14,7 @@ def auto_main():
     p.add_argument("dir")
     p.add_argument("ghidra_install_dir")
     args = p.parse_args()
+
     print("THIS SCRIPT WILL PERFORM DESTRUCTIVE OPERATIONS:")
     print(
         "- create files in the samples/ and plugins/ directories (may overwrite old versions)"
