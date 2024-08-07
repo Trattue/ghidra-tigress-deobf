@@ -49,6 +49,7 @@ Then, clone the project and fetch the dependencies of this project:
 ```sh
 git clone https://github.com/Trattue/ghidra-tigress-deobf.git
 cd ghidra-tigress-deobf
+poetry config --local installer.no-binary capstone
 poetry install
 ```
 

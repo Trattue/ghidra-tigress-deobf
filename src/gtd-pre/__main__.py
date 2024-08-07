@@ -1,6 +1,8 @@
 import argparse
 import logging
-from logging import debug, error, info
+import re
+import subprocess
+from logging import error, info, warn
 from pathlib import Path
 from typing import ByteString
 
@@ -15,23 +17,111 @@ from networkx.algorithms.shortest_paths import shortest_path
 from networkx.classes.reportviews import OutEdgeView
 from networkx.exception import NetworkXNoPath
 
+TEST_HELP = "test the entire workflow and perform validation checks"
+TEST_TIGRESS_HELP = "Tigress directory"
+TEST_INPUT_HELP = "C source file to be obfuscated"
+TEST_FUNCS_HELP = "functions in the C source file to be obfuscated"
+TEST_SUPEROPS_HELP = "use superorperators during obfuscation"
 
-def pre_main():
+
+def main():
+    # TODO don't use root logger
     logging.basicConfig(level=logging.INFO, force=True)
-    p = argparse.ArgumentParser()
-    p.add_argument("binary")
-    p.add_argument("vm_func")
-    p.add_argument("test", nargs="?")
-    args = p.parse_args()
+    for l in logging.Logger.manager.loggerDict:
+        if l != "root":
+            logging.getLogger(l).disabled = True
 
-    binary = Path(args.binary)
-    config = create_config(binary, args.vm_func)
-    if config == None:
-        return
-    config_name = f"{binary.name.rsplit('.', 1)[0]}.toml"
-    with open(config_name, "w+") as file:
-        file.writelines(config.unparse())
-        info(f"Wrote config file to {config_name}")
+    # Top level parser
+    parser = argparse.ArgumentParser()
+    parser.set_defaults(func=lambda _: parser.print_usage())
+    commands = parser.add_subparsers(title="commands")
+
+    # TODO Clean command?
+    # Test command
+    test = commands.add_parser("test", help=TEST_HELP)
+    test.add_argument("input", help=TEST_INPUT_HELP)
+    test.add_argument("functions", nargs="+", help=TEST_FUNCS_HELP)
+    test.add_argument(
+        "-s", "--superoperators", action="store_true", help=TEST_SUPEROPS_HELP
+    )
+    test.set_defaults(func=test_command)
+
+    # Dispatch
+    args = parser.parse_args()
+    args.func(args)
+
+
+def test_command(args):
+    funcs = args.functions
+    # obf_output = obfuscate(
+    #     Path(args.input),
+    #     funcs,
+    #     args.superoperators,
+    # )
+    # binary = compile(obf_output)
+    binary = Path("sample.obf.c.out")
+    obf_output = Path("sample.obf.c")
+    configs = [
+        c
+        for c in [create_and_validate_config(obf_output, binary, f) for f in funcs]
+        if c != None
+    ]
+    write_config(binary, configs)
+
+
+TIGRESS_CMD = """cd tigress && export TIGRESS_HOME=$(pwd) && ./tigress \\
+    --Environment=x86_64:Linux:Gcc:4.6 \\
+    --Transform=Virtualize \\
+        --Functions={2} \\
+        --VirtualizeDispatch=ifnest \\
+    --out={1} {0}"""
+TIGRESS_SUPEROPS_CMD = """cd tigress && export TIGRESS_HOME=$(pwd) && ./tigress \\
+    --Environment=x86_64:Linux:Gcc:4.6 \\
+    --Transform=Virtualize \\
+        --Functions={2} \\
+        --VirtualizeDispatch=ifnest \\
+        --VirtualizeMaxMergeLength=5 --VirtualizeSuperOpsRatio=2.0 \\
+    --out={1} {0}"""
+
+
+def obfuscate(input: Path, funcs: list[str], use_superops: bool) -> Path:
+    output = Path(f"{str(input).rsplit('.')[-2]}.obf.c")
+    if use_superops:
+        subprocess.run(
+            TIGRESS_SUPEROPS_CMD.format(
+                Path("..").joinpath(input),
+                Path("..").joinpath(output),
+                ",".join(funcs),
+            ),
+            shell=True,
+        )
+    else:
+        subprocess.run(
+            TIGRESS_CMD.format(
+                Path("..").joinpath(input),
+                Path("..").joinpath(output),
+                ",".join(funcs),
+            ),
+            shell=True,
+        )
+    return output
+
+
+GCC_CMD = "gcc {0} -o {1} -gdwarf-4"
+
+
+def compile(input: Path) -> Path:
+    # subprocess.run("")
+    output = Path(f"{input}.out")
+    subprocess.run(GCC_CMD.format(input, output), shell=True)
+    return output
+
+
+def create_and_validate_config(src: Path, binary: Path, vm_func) -> Config | None:
+    config = create_config(binary, vm_func)
+    if config != None:
+        validate_config(src, config, vm_func)
+    return config
 
 
 def create_config(binary: Path, vm_func) -> Config | None:
@@ -40,7 +130,7 @@ def create_config(binary: Path, vm_func) -> Config | None:
     if sy is None:
         error(f"VM function {vm_func} not found")
         return None
-    vm_name = f"{binary.name.rsplit('.', 1)[0]}_{vm_func}"
+    vm_name = f"{binary.name.rsplit('.', 3)[0]}_{vm_func}"
 
     # Create CFG of VM function
     s: Symbol = sy
@@ -136,9 +226,56 @@ def find_handlers(
                 if opcode == 0:
                     # first handler has no seperate condition block, handle it here
                     # TODO is there a better way?
-                    opcode = block.predecessors()[0].bytestr[-3]
+                    pre_code = block.predecessors()[0].bytestr
+                    if pre_code[-2] == 0x75 and pre_code[-6] == 0x80:
+                        opcode = pre_code[-3]
+                    elif (
+                        pre_code[-6] == 0x0F
+                        and pre_code[-5] == 0x85
+                        and pre_code[-10] == 0x80
+                    ):
+                        opcode = pre_code[-7]
+                    else:
+                        warn(f"first handler opcode not found in {vm_func}")
                 if not ret:
                     end = default_end
                 handlers.append(Handler(opcode, start, end, Handler.DETECT_OPERANDS))
                 break
     return handlers
+
+
+def write_config(binary: Path, configs: list[Config]) -> Path:
+    output = Path(f"{binary}.toml")
+    with open(output, "w+") as file:
+        file.writelines(f'binary_path = "{binary}"\n')
+        for config in configs:
+            count = len(config.vm_name) + 4
+            file.writelines(f"\n{'#' * count}\n")
+            file.writelines(f"# {config.vm_name} #\n")
+            file.writelines(f"{'#' * count}\n\n")
+            file.writelines(config.unparse())
+    info("wrote config file")
+    return output
+
+
+def validate_config(src_path: Path, config: Config, vm_func: str):
+    with open(src_path, "r") as src:
+        found = set(map(lambda h: h.opcode, config.handlers))
+        expected: set[int] = set()
+        for line in src:
+            if line.strip() == f"enum _1_{vm_func}_$op {{":
+                break
+        for line in src:
+            x = re.search(f"\\s*_1_{vm_func}__.*= (\\d+).*", line)
+            if x == None:
+                break
+            expected.add(int(x.group(1)))
+        if found.issubset(expected) and expected.issubset(found):
+            info("all handlers found")
+            info(f"found: {sorted(found)}")
+            info(f"exprected: {sorted(expected)}")
+
+        else:
+            info("handler detection not correct")
+            info(f"found: {sorted(found)}")
+            info(f"exprected: {sorted(expected)}")
