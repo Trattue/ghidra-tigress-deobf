@@ -2,12 +2,14 @@ import argparse
 import logging
 import re
 import subprocess
-from logging import error, info, warn
+from logging import debug, error, info, warn
 from pathlib import Path
 from typing import ByteString
 
 import angr
+from angr.block import Block
 from angr.codenode import BlockNode
+from angr.knowledge_plugins.cfg import CFGNode
 from cle import Symbol
 from gtd.config import Config
 from gtd.config.function import Function
@@ -22,6 +24,7 @@ TEST_TIGRESS_HELP = "Tigress directory"
 TEST_INPUT_HELP = "C source file to be obfuscated"
 TEST_FUNCS_HELP = "functions in the C source file to be obfuscated"
 TEST_SUPEROPS_HELP = "use superorperators during obfuscation"
+TEST_VERBOSE_HELP = "print debug messages"
 
 
 def main():
@@ -44,23 +47,25 @@ def main():
     test.add_argument(
         "-s", "--superoperators", action="store_true", help=TEST_SUPEROPS_HELP
     )
+    test.add_argument("-v", "--verbose", action="store_true", help=TEST_VERBOSE_HELP)
     test.set_defaults(func=test_command)
 
     # Dispatch
     args = parser.parse_args()
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG, force=True)
     args.func(args)
 
 
 def test_command(args):
     funcs = args.functions
-    # obf_output = obfuscate(
-    #     Path(args.input),
-    #     funcs,
-    #     args.superoperators,
-    # )
-    # binary = compile(obf_output)
-    binary = Path("sample.obf.c.out")
+    obf_output = obfuscate(
+        Path(args.input),
+        funcs,
+        args.superoperators,
+    )
     obf_output = Path("sample.obf.c")
+    binary = compile(obf_output)
     configs = [
         c
         for c in [create_and_validate_config(obf_output, binary, f) for f in funcs]
@@ -94,6 +99,8 @@ def obfuscate(input: Path, funcs: list[str], use_superops: bool) -> Path:
                 ",".join(funcs),
             ),
             shell=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
     else:
         subprocess.run(
@@ -103,7 +110,10 @@ def obfuscate(input: Path, funcs: list[str], use_superops: bool) -> Path:
                 ",".join(funcs),
             ),
             shell=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
+    info(f"Obfuscated {input} to {output}!")
     return output
 
 
@@ -111,13 +121,19 @@ GCC_CMD = "gcc {0} -o {1} -gdwarf-4"
 
 
 def compile(input: Path) -> Path:
-    # subprocess.run("")
     output = Path(f"{input}.out")
-    subprocess.run(GCC_CMD.format(input, output), shell=True)
+    subprocess.run(
+        GCC_CMD.format(input, output),
+        shell=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    info(f"Compiled {input} to {output}!")
     return output
 
 
 def create_and_validate_config(src: Path, binary: Path, vm_func) -> Config | None:
+    info(f"Analysing {vm_func}...")
     config = create_config(binary, vm_func)
     if config != None:
         validate_config(src, config, vm_func)
@@ -144,14 +160,15 @@ def create_config(binary: Path, vm_func) -> Config | None:
     iloop = find_interpreter_loop(vm_func.transition_graph.edges)
     default_end = iloop.addr
 
-    # Step 2: Finding end of handlers
-    handlers = find_handlers(vm_func, iloop, default_end)
+    # Step 2: Finding stert of handlers
+    handlers = find_handlers(cfg, vm_func, iloop, default_end)
 
     # Step 3: Process functions
     functions = find_functions(vm_func)
 
     # Step 4: TODO
-    locations = Locations(0, 0, 0, [])  # TODO
+    locations = find_locations(cfg, handlers)
+
     return Config(vm_name, 0, 0, locations, handlers, functions)  # TODO
 
 
@@ -167,8 +184,77 @@ def find_interpreter_loop(edges: OutEdgeView[BlockNode]) -> BlockNode:
             in_edges[e[1]] += 1
 
     iloop = next(reversed(sorted(in_edges.items(), key=lambda item: item[1])))
-    info(f"interpreter loop likely at {hex(iloop[0].addr)} ({iloop[1]} incoming edges)")
+    info(f"Interpreter loop likely at {hex(iloop[0].addr)} ({iloop[1]} incoming edges)")
     return iloop[0]
+
+
+def find_handlers(
+    cfg: angr.analyses.cfg.cfg_base.CFGBase,
+    vm_func: angr.knowledge_plugins.functions.function.Function,
+    iloop: BlockNode,
+    default_end: int,
+) -> list[Handler]:
+    # Create a set of blocks at the end of handlers (leading to interpreter loop or the
+    # function end)
+    handler_end_addrs = set()
+    handler_end_blocks: set[tuple[BlockNode, bool]] = set()
+    for node in iloop.predecessors():
+        if node.addr + node.size not in handler_end_addrs:
+            handler_end_addrs.add(node.addr + node.size)
+            handler_end_blocks.add((node, False))  # is not return
+    for node in vm_func.endpoints:
+        if node.addr + node.size not in handler_end_addrs:
+            handler_end_addrs.add(node.addr + node.size)
+            handler_end_blocks.add((node, True))  # is return
+
+    # Create list of paths from interpreter loop to handler ends
+    paths: list[tuple[list[BlockNode], bool]] = []
+    for node, ret in handler_end_blocks:
+        try:
+            paths.append((shortest_path(vm_func.transition_graph, iloop, node), ret))
+        except NetworkXNoPath:
+            # No path
+            pass
+
+    handlers = []
+    for path, ret in paths:
+        opcode = 0
+        start = 0
+        for node in path[1:]:
+            block = cfg.get_any_node(node.addr).block
+            if block == None:
+                break
+            insns: list[angr.block.DisassemblerBlock] = block.disassembly.insns
+
+            if insns[0].mnemonic == "cmp":
+                # cmp with opcode -> handler condition
+                opcode = int(insns[0].op_str.lower().split(",")[-1], base=0)
+            elif (
+                insns[0].mnemonic == "mov"
+                and insns[0].op_str.lower().split(",")[0] == "rax"
+            ):
+                # mov rax, vpc -> handler start
+                start = node.addr
+                end = path[-1].addr + path[-1].size
+                if opcode == 0:
+                    # First handler has no seperate condition block, handle it here
+                    pre_insns: list[angr.block.DisassemblerBlock] = cfg.get_any_node(
+                        node.predecessors()[0].addr
+                    ).block.disassembly.insns
+
+                    # Again, cmp with opcode -> handler condition
+                    if pre_insns[-2].mnemonic == "cmp":
+                        opcode = int(
+                            pre_insns[-2].op_str.lower().split(",")[-1], base=0
+                        )
+                    else:
+                        warn(f"First handler opcode not found in {vm_func}")
+                if not ret:
+                    end = default_end
+                handlers.append(Handler(opcode, start, end, Handler.DETECT_OPERANDS))
+                break
+    info(f"Found {len(handlers)} handlers")
+    return handlers
 
 
 def find_functions(
@@ -180,68 +266,53 @@ def find_functions(
     return funcs
 
 
-def find_handlers(
-    vm_func: angr.knowledge_plugins.functions.function.Function,
-    iloop: BlockNode,
-    default_end: int,
-) -> list[Handler]:
-    # Create a set of blocks at the end of handlers (leading to interpreter loop or the
-    # function end)
-    handler_end_addrs = set()
-    handler_end_blocks: set[tuple[BlockNode, bool]] = set()
-    for block in iloop.predecessors():
-        if block.addr + block.size not in handler_end_addrs:
-            handler_end_addrs.add(block.addr + block.size)
-            handler_end_blocks.add((block, False))  # is not return
-    for block in vm_func.endpoints:
-        if block.addr + block.size not in handler_end_addrs:
-            handler_end_addrs.add(block.addr + block.size)
-            handler_end_blocks.add((block, True))  # is return
+def find_locations(cfg: angr.analyses.cfg.cfg_base.CFGBase, handlers: list[Handler]):
+    vpc = 0
 
-    # Create list of paths from interpreter loop to handler ends
-    paths: list[tuple[list[BlockNode], bool]] = []
-    for block, ret in handler_end_blocks:
-        try:
-            paths.append((shortest_path(vm_func.transition_graph, iloop, block), ret))
-        except NetworkXNoPath:
-            # No path
-            pass
+    for h in handlers:
+        insns = cfg.get_any_node(h.start).block.disassembly.insns
+        # Handler start should be mov rax, vpc; add rax, 1
+        if (
+            insns[0].mnemonic.lower() == "mov"
+            and insns[0].op_str.lower().split(",")[0] == "rax"
+            and insns[1].mnemonic.lower() == "add"
+            and insns[1].op_str.lower().split(",")[0] == "rax"
+        ):
+            x = insns[0].op_str.lower().split(",")[1]
+            vpc = int(re.search(f"\[rbp - (\\w+)\]", x).group(1), base=0)
+            info(f"Found VPC offset: {hex(vpc)}")
+            break
 
-    handlers = []
-    for path, ret in paths:
-        opcode = 0
-        start = 0
-        for block in path[1:]:
-            bs = block.bytestr
-            if bs == None:
-                break
-            bs_: ByteString = bs
-            if bs_[0] == 0x80:
-                # cmp with opcode -> handler condition
-                opcode = bs_[3]
-            elif bs_[0] == 0x48 and bs_[1] == 0x8B and bs_[2] == 0x85:
-                # mov rax, vpc -> handler start
-                start = block.addr
-                end = path[-1].addr + path[-1].size
-                if opcode == 0:
-                    # first handler has no seperate condition block, handle it here
-                    # TODO is there a better way?
-                    pre_code = block.predecessors()[0].bytestr
-                    if pre_code[-2] == 0x75 and pre_code[-6] == 0x80:
-                        opcode = pre_code[-3]
-                    elif (
-                        pre_code[-6] == 0x0F
-                        and pre_code[-5] == 0x85
-                        and pre_code[-10] == 0x80
-                    ):
-                        opcode = pre_code[-7]
+    offsets: dict[int, int] = {}
+    for n in cfg.nodes():
+        n: CFGNode = n
+        b: Block = n.block
+        for i in b.disassembly.insns:
+            if "rbp" in i.op_str.lower():
+                for o in re.findall(f"\[rbp - (\\w+)\]", i.op_str.lower()):
+                    o = int(o, base=0)
+                    if o in offsets:
+                        offsets[o] += 1
                     else:
-                        warn(f"first handler opcode not found in {vm_func}")
-                if not ret:
-                    end = default_end
-                handlers.append(Handler(opcode, start, end, Handler.DETECT_OPERANDS))
-                break
-    return handlers
+                        offsets[o] = 1
+    sorted_offsets = sorted(offsets, reverse=True)
+
+    # Assume most common offset apart from VPC is VSP
+    so = list(sorted(offsets, key=offsets.get, reverse=True))
+    so.remove(vpc)
+    vsp = so[0]
+    info(f"Found VSP offset: {hex(vsp)}")
+
+    msg = "Stack accesses relative to RBP:"
+    for o in sorted_offsets:
+        msg += f"\n{hex(o)}: {offsets[o]}"
+        if o == vpc:
+            msg += " <- likely VPC"
+        elif o == vsp:
+            msg += " <- likely VSP"
+    debug(msg)
+
+    return Locations(vpc, vsp, 0, [])
 
 
 def write_config(binary: Path, configs: list[Config]) -> Path:
@@ -254,7 +325,7 @@ def write_config(binary: Path, configs: list[Config]) -> Path:
             file.writelines(f"# {config.vm_name} #\n")
             file.writelines(f"{'#' * count}\n\n")
             file.writelines(config.unparse())
-    info("wrote config file")
+    info("Wrote config file!")
     return output
 
 
@@ -271,11 +342,8 @@ def validate_config(src_path: Path, config: Config, vm_func: str):
                 break
             expected.add(int(x.group(1)))
         if found.issubset(expected) and expected.issubset(found):
-            info("all handlers found")
-            info(f"found: {sorted(found)}")
-            info(f"exprected: {sorted(expected)}")
-
+            info(f"Validation: All handlers found!")
         else:
-            info("handler detection not correct")
-            info(f"found: {sorted(found)}")
-            info(f"exprected: {sorted(expected)}")
+            error("Validation: Handler detection not correct")
+        debug(f"Found: {sorted(found)}")
+        debug(f"Exprected: {sorted(expected)}")

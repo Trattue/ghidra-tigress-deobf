@@ -3,7 +3,6 @@
 
 # Whitelist src
 !/docs/
-!/samples/
 !/src/
 !/tests/
 !/.gitignore
@@ -16,5 +15,9 @@
 # Uncomment the following line if changing the plugin template
 # !/plugins/
 
-# Ignore pycache globally >:(
+# Uncomment the following line if changing the samples
+# !/samples/
+
+# Ignore pycache and .DS_Store globally >:(
 **/__pycache__
+**/.DS_Store
