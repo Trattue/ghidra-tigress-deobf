@@ -35,6 +35,25 @@ public class Export extends HeadlessScript {
 					HighFunctionDBUtil.updateDBVariable(sym, null, dt, SourceType.USER_DEFINED);
 				}
 			}
+
+			// Set calling convention for VM function
+			f.setCallingConvention("vm");
+			
+			// Get return value size of called functions
+			var ops = res.getHighFunction().getPcodeOps();
+			while (ops.hasNext()) {
+				var op = ops.next();
+				if(op.getMnemonic().equals("CALL")) {
+					print("CALL");
+					for (var i : op.getInputs()) {
+						if(i.getAddress().getAddressSpace().getName().equalsIgnoreCase("ram")) {
+							print(" 0x" + Long.toHexString(i.getOffset()));
+							break;
+						}
+					}
+					print(" retsize: " + op.getOutput().getSize() + "\n");
+				}
+			}
 		}
 
 		// Export pseudocode
