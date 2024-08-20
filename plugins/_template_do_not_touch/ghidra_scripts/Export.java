@@ -44,14 +44,19 @@ public class Export extends HeadlessScript {
 			while (ops.hasNext()) {
 				var op = ops.next();
 				if(op.getMnemonic().equals("CALL")) {
-					print("CALL");
+					String msg = "CALL";
 					for (var i : op.getInputs()) {
 						if(i.getAddress().getAddressSpace().getName().equalsIgnoreCase("ram")) {
-							print(" 0x" + Long.toHexString(i.getOffset()));
+							msg += " 0x" + Long.toHexString(i.getOffset());
 							break;
 						}
 					}
-					print(" retsize: " + op.getOutput().getSize() + "\n");
+					if (op.getOutput() == null) {
+						msg += " retsize: UNKNOWN\n";
+					} else {
+						msg += " retsize: " + op.getOutput().getSize() + "\n";
+					}
+					println(msg);
 				}
 			}
 		}

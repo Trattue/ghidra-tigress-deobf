@@ -35,9 +35,12 @@ def auto_main():
                 for vm in toml_config["virtual_machines"]:
                     config = Config.parse(vm)
                     # Step 3: Plugins -> pseudo code files
-                    plugin_stuff(args.dir, config, args.ghidra_install_dir)
+                    func_ret_sizes: dict[int, int] = {}
+                    plugin_stuff(
+                        args.dir, config, args.ghidra_install_dir, func_ret_sizes
+                    )
                     # Step 4: Pseudo code -> C files
-                    fix_c_files(config, args.dir)
+                    fix_c_files(config, args.dir, func_ret_sizes)
 
 
 ##############################
@@ -83,21 +86,33 @@ def compile_plugin(plugin_dir: str, ghidra_dir: str):
 ################################
 
 
-def plugin_stuff(config_dir: str, config: Config, ghidra_dir: str):
+def plugin_stuff(
+    config_dir: str, config: Config, ghidra_dir: str, func_ret_sizes: dict[int, int]
+):
     sample = f"{Path(config_dir).as_posix()}/{config.vm_name}"
-    subprocess.call(
+    p = subprocess.run(
         f"{ghidra_dir}support/analyzeHeadless samples/ghidra ghidra -import {sample} -processor tigressvm-{config.vm_name}:LE:64 -loader BinaryLoader -preScript DisableCoff.java -postScript Export.java",
         shell=True,
+        capture_output=True,
+        text=True,
     )
+    print(p.stdout)
+    x = re.findall("CALL (0x\\w+) retsize: (\\d+|UNKNOWN)", p.stdout)
+    for f in x:
+        func_addr = int(f[0], base=16)
+        if f[1] == "UNKNOWN":
+            func_ret_sizes[func_addr] = 0
+        else:
+            func_ret_sizes[func_addr] = int(f[1])
 
 
 ##########################
 # PSEUDO CODE -> C FILES #
 ##########################
-def fix_c_files(config: Config, config_dir: str):
+def fix_c_files(config: Config, config_dir: str, func_ret_sizes: dict[int, int]):
     input = f"{Path(config_dir).as_posix()}/{config.vm_name}.dec"
     output = f"{Path(config_dir).as_posix()}/{config.vm_name}.dec.c"
-    fix_c_file(input, output, config)
+    fix_c_file(input, output, config, func_ret_sizes)
 
 
 C_FIX = """#define vm /*nothing*/
@@ -108,7 +123,9 @@ typedef unsigned int uint;
 """
 
 
-def fix_c_file(input_path: str, output_path: str, config: Config):
+def fix_c_file(
+    input_path: str, output_path: str, config: Config, func_ret_sizes: dict[int, int]
+):
     if not Path(input_path).exists():
         return
     with open(input_path, "r") as i:
@@ -145,15 +162,34 @@ def fix_c_file(input_path: str, output_path: str, config: Config):
                 )
             o.write("///////\n")
 
-            i.seek(0)
             # FUNCTIONS, part 1
+            # Resolve function names
             functions: dict[int, str] = {}
             for f in config.functions:
                 functions[f.address] = f.name
+            # FUNCTIONS, part 2
+            # Generate extern definitionss
+            for f in func_ret_sizes:
+                ret_size = func_ret_sizes[f]
+                ret_type = "void"
+                match ret_size:
+                    case 1:
+                        ret_type = "unsigned char"
+                    case 2:
+                        ret_type = "unsigned short"
+                    case 4:
+                        ret_type = "unsigned int"
+                    case 8:
+                        ret_type = "unsigned long long"
+                o.write(f"extern {ret_type} {functions[f]}();\n")
+            o.write("///////\n")
+
+            i.seek(0)
             for i_line in i:
                 # PARAMS, part 2
                 x = re.search("(void \\w+\\()void(\\))", i_line)
                 if x != None:
+                    # VM Function declaration found
                     o.write(f"{x.group(1)}")
                     for p in sorted(params.keys()):
                         if p != 0:
@@ -177,7 +213,8 @@ def fix_c_file(input_path: str, output_path: str, config: Config):
                     o.write(f"{i_line[:b-1]} = &locals{i_line[b-1:]}")
                     continue
 
-                # FUNCTIONS, part 2
+                # FUNCTIONS, part 3
+                # Rename funcions to their names
                 x = re.findall("func_0x\\d{8}", i_line)
                 if len(x) > 0:
                     for f in x:
