@@ -4,7 +4,6 @@
 # Whitelist src
 !/docs/
 !/src/
-!/tests/
 !/.gitignore
 !/Dockerfile
 !/poetry.lock

@@ -173,6 +173,11 @@ class Codegen:
 
                 result = CodeGenExpr()
 
+                # Do this before left side to prevent incorrect counter increase
+                origin = self._codegen_expression(stmt.origin)
+                result.context.extend(origin.context)
+                right_side = f"*({origin.expression});"
+
                 length = math.ceil(stmt.data.length / 8)
                 # Deal with the same local variable being reused... we need to make
                 # those unique for Ghidra to accept them
@@ -183,10 +188,6 @@ class Codegen:
                 else:
                     self.__local_names[stmt.data.args[0]] = 0
                 left_side = f"local {stmt.data.args[0]}__{ctr}:{length} = "
-
-                origin = self._codegen_expression(stmt.origin)
-                result.context.extend(origin.context)
-                right_side = f"*({origin.expression});"
 
                 # Argument support. We check if origin is at an offset to vpc; if that
                 # is the case, it likely is an operand. To filter out data accesses

@@ -123,6 +123,6 @@ class Hooks:
 
 
 def jump_table(target, jumps: dict[int, claripy.ast.bool.Bool]):
-    jumps[target.args[1]._model_concrete.value] = target.args[0]
-    if target.args[2].symbolic or target.args[2]._model_concrete.value != 0xC0DEB4BE:
+    jumps[target.args[1].concrete_value] = target.args[0]
+    if target.args[2].symbolic or target.args[2].concrete_value != 0xC0DEB4BE:
         jump_table(target.args[2], jumps)
