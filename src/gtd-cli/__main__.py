@@ -64,7 +64,6 @@ def test_command(args):
         funcs,
         args.superoperators,
     )
-    obf_output = Path("sample.obf.c")
     binary = compile(obf_output)
     configs = [
         c
