@@ -4,7 +4,6 @@ import re
 import subprocess
 from logging import debug, error, info, warn
 from pathlib import Path
-from typing import ByteString
 
 import angr
 from angr.block import Block
@@ -74,13 +73,13 @@ def test_command(args):
 
 
 TIGRESS_CMD = """cd tigress && export TIGRESS_HOME=$(pwd) && ./tigress \\
-    --Environment=x86_64:Linux:Gcc:4.6 \\
+    --Environment=x86_64:Linux:Gcc:4.6 --Seed=42 \\
     --Transform=Virtualize \\
         --Functions={2} \\
         --VirtualizeDispatch=ifnest \\
     --out={1} {0}"""
 TIGRESS_SUPEROPS_CMD = """cd tigress && export TIGRESS_HOME=$(pwd) && ./tigress \\
-    --Environment=x86_64:Linux:Gcc:4.6 \\
+    --Environment=x86_64:Linux:Gcc:4.6 --Seed=42 \\
     --Transform=Virtualize \\
         --Functions={2} \\
         --VirtualizeDispatch=ifnest \\
@@ -89,7 +88,7 @@ TIGRESS_SUPEROPS_CMD = """cd tigress && export TIGRESS_HOME=$(pwd) && ./tigress 
 
 
 def obfuscate(input: Path, funcs: list[str], use_superops: bool) -> Path:
-    output = Path(f"{str(input).rsplit('.')[-2]}.obf.c")
+    output = Path(f"{str(input).rsplit('.')[-2]}.{'sobf' if use_superops else 'obf'}.c")
     if use_superops:
         subprocess.run(
             TIGRESS_SUPEROPS_CMD.format(
@@ -219,6 +218,8 @@ def find_handlers(
     for path, ret in paths:
         opcode = 0
         start = 0
+
+        # skip interpreter loop and iterate over nodes
         for node in path[1:]:
             block = cfg.get_any_node(node.addr).block
             if block == None:
@@ -234,7 +235,12 @@ def find_handlers(
             ):
                 # mov rax, vpc -> handler start
                 start = node.addr
-                end = path[-1].addr + path[-1].size
+                if ret:
+                    # we assume the last basic block contains leave; ret at the and
+                    # substract leave; ret size from end
+                    end = path[-1].addr + path[-1].size - 2
+                else:
+                    end = default_end
                 if opcode == 0:
                     # First handler has no seperate condition block, handle it here
                     pre_insns: list[angr.block.DisassemblerBlock] = cfg.get_any_node(
@@ -248,8 +254,6 @@ def find_handlers(
                         )
                     else:
                         warn(f"First handler opcode not found in {vm_func}")
-                if not ret:
-                    end = default_end
                 handlers.append(Handler(opcode, start, end, Handler.DETECT_OPERANDS))
                 break
     info(f"Found {len(handlers)} handlers")
