@@ -1,4 +1,4 @@
-binary_path = "samples/pjwhash.obf.c.out"
+binary_path = "samples/simple_hash/pjwhash.obf.c.out"
 
 #######################
 # pjwhash_obf_PJWHash #

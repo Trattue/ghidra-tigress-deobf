@@ -1,14 +1,14 @@
-binary_path = "samples/dekhash.obf.c.out"
+binary_path = "samples/simple_hash/elfhash.sobf.c.out"
 
-#######################
-# dekhash_obf_DEKHash #
-#######################
+########################
+# elfhash_sobf_ELFHash #
+########################
 
 [[virtual_machines]]
-name = "dekhash_obf_DEKHash"
+name = "elfhash_sobf_ELFHash"
 bytecode_start = 0x404040
-bytecode_end = 0x4040eb
-default_end = 0x40121a
+bytecode_end = 0x40411c
+default_end = 0x40117d
 functions = []
 
 [virtual_machines.locations]
@@ -18,112 +18,102 @@ locals_offset = 0x20
 internal_offsets = [0x138, 0x13c]
 
 [[virtual_machines.handlers]]
-opcode = 0x98
-start = 0x4017f1
+opcode = 0xcb
+start = 0x4015ca
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0xad
-start = 0x4013c3
+opcode = 0x7f
+start = 0x4016d2
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0xcc
-start = 0x401741
+opcode = 0x32
+start = 0x4012de
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0x69
-start = 0x40125d
+opcode = 0xc1
+start = 0x401902
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0xc
-start = 0x401673
+opcode = 0xbb
+start = 0x4013ba
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x94
+start = 0x4014e0
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0x9a
-start = 0x401599
+start = 0x4019e6
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0x26
-start = 0x401619
+opcode = 0x68
+start = 0x401afc
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0x1c
-start = 0x401848
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x10
-start = 0x40144f
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x24
-start = 0x4016d5
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xe9
-start = 0x4012dc
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xb2
-start = 0x4014a7
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xcb
-start = 0x401347
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x3
-start = 0x40122d
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xf9
-start = 0x401315
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xe4
-start = 0x40141c
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x7
-start = 0x401545
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x60
-start = 0x401799
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x75
-start = 0x40187f
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xa4
-start = 0x40138f
-detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0x9b
-start = 0x4014fb
+opcode = 0xda
+start = 0x401bec
 detect_operands = true
 
 [[virtual_machines.handlers]]
 opcode = 0xca
-start = 0x4012b6
-end = 0x4018d0
+start = 0x401bc2
+end = 0x401e2a
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xa3
+start = 0x401194
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x7c
+start = 0x401616
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xb7
+start = 0x401253
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xe9
+start = 0x4014a3
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x92
+start = 0x40187f
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xd6
+start = 0x401a6a
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x9c
+start = 0x4017ae
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x78
+start = 0x401d75
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x86
+start = 0x401ca4
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xbb
+start = 0x4013ba
 detect_operands = true
