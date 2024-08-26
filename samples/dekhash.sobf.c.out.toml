@@ -8,7 +8,7 @@ binary_path = "samples/dekhash.sobf.c.out"
 name = "dekhash_sobf_DEKHash"
 bytecode_start = 0x404040
 bytecode_end = 0x4040ca
-default_end = f0x40117d
+default_end = 0x40117d
 functions = []
 
 [virtual_machines.locations]

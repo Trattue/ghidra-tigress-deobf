@@ -8,7 +8,7 @@ binary_path = "samples/fnvhash.sobf.c.out"
 name = "fnvhash_sobf_FNVHash"
 bytecode_start = 0x404040
 bytecode_end = 0x4040d4
-default_end = f0x40121a
+default_end = 0x40121a
 functions = []
 
 [virtual_machines.locations]

@@ -56,7 +56,7 @@ class Config:
             sorted(handler_ends_cnt, key=handler_ends_cnt.get, reverse=True)
         )
         default_end = handler_ends[0]
-        result += f"default_end = f{hex(default_end)}\n"
+        result += f"default_end = {hex(default_end)}\n"
 
         # Case with no function
         if len(self.functions) == 0:

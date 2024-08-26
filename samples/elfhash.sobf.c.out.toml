@@ -8,7 +8,7 @@ binary_path = "samples/elfhash.sobf.c.out"
 name = "elfhash_sobf_ELFHash"
 bytecode_start = 0x404040
 bytecode_end = 0x40411c
-default_end = f0x40117d
+default_end = 0x40117d
 functions = []
 
 [virtual_machines.locations]

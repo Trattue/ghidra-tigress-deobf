@@ -8,7 +8,7 @@ binary_path = "samples/jshash.obf.c.out"
 name = "jshash_obf_JSHash"
 bytecode_start = 0x404040
 bytecode_end = 0x4040f1
-default_end = f0x401213
+default_end = 0x401213
 functions = []
 
 [virtual_machines.locations]

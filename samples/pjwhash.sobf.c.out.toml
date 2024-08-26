@@ -8,7 +8,7 @@ binary_path = "samples/pjwhash.sobf.c.out"
 name = "pjwhash_sobf_PJWHash"
 bytecode_start = 0x405040
 bytecode_end = 0x40514f
-default_end = f0x40121a
+default_end = 0x40121a
 functions = []
 
 [virtual_machines.locations]

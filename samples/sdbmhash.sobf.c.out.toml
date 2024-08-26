@@ -8,7 +8,7 @@ binary_path = "samples/sdbmhash.sobf.c.out"
 name = "sdbmhash_sobf_SDBMHash"
 bytecode_start = 0x404040
 bytecode_end = 0x4040cf
-default_end = f0x40117d
+default_end = 0x40117d
 functions = []
 
 [virtual_machines.locations]
