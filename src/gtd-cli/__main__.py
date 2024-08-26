@@ -144,7 +144,7 @@ def create_config(binary: Path, vm_func) -> Config | None:
     if sy is None:
         error(f"VM function {vm_func} not found")
         return None
-    vm_name = f"{binary.name.rsplit('.', 3)[0]}_{vm_func}"
+    vm_name = f"{binary.name.rsplit('.c')[0].replace(".", "_").replace("-", "_")}_{vm_func}"
 
     # Create CFG of VM function
     s: Symbol = sy

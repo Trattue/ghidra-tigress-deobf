@@ -42,11 +42,31 @@ class Config:
             "[[virtual_machines]]\n"
             f'name = "{self.vm_name}"\n'
             f"bytecode_start = {hex(self.bytecode_start)}\n"
-            f"bytecode_end = {hex(self.bytecode_end)}\n\n"
+            f"bytecode_end = {hex(self.bytecode_end)}\n"
         )
+
+        # Default end
+        handler_ends_cnt: dict[int, int] = {}
+        for h in self.handlers:
+            if h.end in handler_ends_cnt:
+                handler_ends_cnt[h.end] += 1
+            else:
+                handler_ends_cnt[h.end] = 1
+        handler_ends = list(
+            sorted(handler_ends_cnt, key=handler_ends_cnt.get, reverse=True)
+        )
+        default_end = handler_ends[0]
+        result += f"default_end = f{hex(default_end)}\n"
+
+        # Case with no function
+        if len(self.functions) == 0:
+            result += "functions = []\n"
+
+        result += "\n"
         result += self.locations.unparse()
         result += "\n"
-        result += "\n".join(map(lambda h: h.unparse(), self.handlers))
-        result += "\n"
-        result += "\n".join(map(lambda f: f.unparse(), self.functions))
+        result += "\n".join(map(lambda h: h.unparse(default_end), self.handlers))
+        if len(self.functions) > 0:
+            result += "\n"
+            result += "\n".join(map(lambda f: f.unparse(), self.functions))
         return result

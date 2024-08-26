@@ -52,19 +52,22 @@ class Handler:
             operands: list[int] = handler_config["operands"]
             return cls(opcode, start, end, *operands)
 
-    def unparse(self) -> str:
+    def unparse(self, default_end: int) -> str:
         result = (
             f"[[virtual_machines.handlers]]\n"
             f"opcode = {hex(self.opcode)}\n"
             f"start = {hex(self.start)}\n"
-            f"end = {hex(self.end)}\n"
-            "detect_operands = "
         )
+
+        # Don't write default end
+        if default_end != self.end:
+            result += f"end = {hex(self.end)}\n"
+
         if (
             len(self.operand_sizes) == 1
             and self.operand_sizes[0] == self.DETECT_OPERANDS
         ):
-            result += "true\n"
+            result += "detect_operands = true\n"
         else:
-            result += "false\noperands = []"
+            result += "detect_operands = false\noperands = []"
         return result
