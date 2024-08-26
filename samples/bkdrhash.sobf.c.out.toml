@@ -1,0 +1,79 @@
+binary_path = "samples/bkdrhash.sobf.c.out"
+
+##########################
+# bkdrhash_sobf_BKDRHash #
+##########################
+
+[[virtual_machines]]
+name = "bkdrhash_sobf_BKDRHash"
+bytecode_start = 0x404040
+bytecode_end = 0x4040cb
+default_end = f0x401184
+functions = []
+
+[virtual_machines.locations]
+vpc_offset = 0x130
+vsp_offset = 0x128
+locals_offset = 0x20
+internal_offsets = [0x138, 0x13c]
+
+[[virtual_machines.handlers]]
+opcode = 0x26
+start = 0x4012c3
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xd2
+start = 0x40134e
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x68
+start = 0x4017a0
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x9a
+start = 0x40171c
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xa1
+start = 0x40119b
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xe9
+start = 0x401286
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xcb
+start = 0x401570
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x6d
+start = 0x4015b8
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xca
+start = 0x401637
+end = 0x401878
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xea
+start = 0x401408
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x94
+start = 0x401661
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xf1
+start = 0x4014c0
+detect_operands = true

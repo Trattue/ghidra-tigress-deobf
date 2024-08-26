@@ -1,0 +1,129 @@
+binary_path = "samples/dekhash.obf.c.out"
+
+#######################
+# dekhash_obf_DEKHash #
+#######################
+
+[[virtual_machines]]
+name = "dekhash_obf_DEKHash"
+bytecode_start = 0x404040
+bytecode_end = 0x4040eb
+default_end = f0x40121a
+functions = []
+
+[virtual_machines.locations]
+vpc_offset = 0x130
+vsp_offset = 0x128
+locals_offset = 0x20
+internal_offsets = [0x138, 0x13c]
+
+[[virtual_machines.handlers]]
+opcode = 0x98
+start = 0x4017f1
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xad
+start = 0x4013c3
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xcc
+start = 0x401741
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x69
+start = 0x40125d
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xc
+start = 0x401673
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x9a
+start = 0x401599
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x26
+start = 0x401619
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x1c
+start = 0x401848
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x10
+start = 0x40144f
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x24
+start = 0x4016d5
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xe9
+start = 0x4012dc
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xb2
+start = 0x4014a7
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xcb
+start = 0x401347
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x3
+start = 0x40122d
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xf9
+start = 0x401315
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xe4
+start = 0x40141c
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x7
+start = 0x401545
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x60
+start = 0x401799
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x75
+start = 0x40187f
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xa4
+start = 0x40138f
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x9b
+start = 0x4014fb
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xca
+start = 0x4012b6
+end = 0x4018d0
+detect_operands = true

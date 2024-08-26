@@ -1,0 +1,89 @@
+binary_path = "samples/jshash.sobf.c.out"
+
+######################
+# jshash_sobf_JSHash #
+######################
+
+[[virtual_machines]]
+name = "jshash_sobf_JSHash"
+bytecode_start = 0x404040
+bytecode_end = 0x4040cf
+default_end = f0x401184
+functions = []
+
+[virtual_machines.locations]
+vpc_offset = 0x130
+vsp_offset = 0x128
+locals_offset = 0x20
+internal_offsets = [0x138, 0x13c]
+
+[[virtual_machines.handlers]]
+opcode = 0xca
+start = 0x401936
+end = 0x401a15
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xb9
+start = 0x40127d
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xdf
+start = 0x4015f6
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x0
+start = 0x4018b7
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xe9
+start = 0x4014b4
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x9a
+start = 0x4017bc
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x35
+start = 0x401308
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x7c
+start = 0x40119b
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xff
+start = 0x4013fe
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x94
+start = 0x4014f1
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x10
+start = 0x40159a
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xb7
+start = 0x4016e4
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x66
+start = 0x40183c
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x4e
+start = 0x401960
+detect_operands = true

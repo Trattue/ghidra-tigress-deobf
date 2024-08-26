@@ -1,0 +1,89 @@
+binary_path = "samples/dekhash.sobf.c.out"
+
+########################
+# dekhash_sobf_DEKHash #
+########################
+
+[[virtual_machines]]
+name = "dekhash_sobf_DEKHash"
+bytecode_start = 0x404040
+bytecode_end = 0x4040ca
+default_end = f0x40117d
+functions = []
+
+[virtual_machines.locations]
+vpc_offset = 0x130
+vsp_offset = 0x128
+locals_offset = 0x20
+internal_offsets = [0x138, 0x13c]
+
+[[virtual_machines.handlers]]
+opcode = 0x96
+start = 0x401449
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xca
+start = 0x401320
+end = 0x401a54
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x34
+start = 0x4016f4
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xe2
+start = 0x4018e7
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x39
+start = 0x401194
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xe9
+start = 0x4017bc
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xb0
+start = 0x4017f9
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x8c
+start = 0x401276
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x9a
+start = 0x4013c5
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xcb
+start = 0x4016a8
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x66
+start = 0x4015f2
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xab
+start = 0x40199f
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xe3
+start = 0x401538
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x7f
+start = 0x401346
+detect_operands = true

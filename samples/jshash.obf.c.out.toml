@@ -1,0 +1,129 @@
+binary_path = "samples/jshash.obf.c.out"
+
+#####################
+# jshash_obf_JSHash #
+#####################
+
+[[virtual_machines]]
+name = "jshash_obf_JSHash"
+bytecode_start = 0x404040
+bytecode_end = 0x4040f1
+default_end = f0x401213
+functions = []
+
+[virtual_machines.locations]
+vpc_offset = 0x130
+vsp_offset = 0x128
+locals_offset = 0x20
+internal_offsets = [0x138, 0x13c]
+
+[[virtual_machines.handlers]]
+opcode = 0x75
+start = 0x4012c0
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xe9
+start = 0x401226
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xad
+start = 0x4017c3
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xca
+start = 0x40162e
+end = 0x4018c6
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x9a
+start = 0x401426
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xe4
+start = 0x40125c
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xc
+start = 0x401317
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x7
+start = 0x4013d2
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x9b
+start = 0x4015e4
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x1c
+start = 0x4016ae
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x60
+start = 0x40176b
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xa4
+start = 0x40128c
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x3
+start = 0x401706
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x10
+start = 0x40181c
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x24
+start = 0x4014d9
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x69
+start = 0x401379
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xcb
+start = 0x401545
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x98
+start = 0x40158d
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0x26
+start = 0x401654
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xb2
+start = 0x401878
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xcc
+start = 0x4014a6
+detect_operands = true
+
+[[virtual_machines.handlers]]
+opcode = 0xf9
+start = 0x401739
+detect_operands = true
