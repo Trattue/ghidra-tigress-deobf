@@ -83,11 +83,6 @@ start = 0x40198f
 detect_operands = true
 
 [[virtual_machines.handlers]]
-opcode = 0x2d
-start = 0x401a5d
-detect_operands = true
-
-[[virtual_machines.handlers]]
 opcode = 0xea
 start = 0x40214b
 detect_operands = true

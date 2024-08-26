@@ -338,6 +338,8 @@ class Codegen:
                 return self.__codegen_multop(expr, " - ")
             case "__mul__":
                 return self.__codegen_multop(expr, " * ")
+            case "__floordiv__":
+                return self.__codegen_multop(expr, " / ")
             case "__and__":
                 return self.__codegen_multop(expr, " & ")
             case "__or__":

@@ -112,8 +112,3 @@ detect_operands = true
 opcode = 0x86
 start = 0x401ca4
 detect_operands = true
-
-[[virtual_machines.handlers]]
-opcode = 0xbb
-start = 0x4013ba
-detect_operands = true

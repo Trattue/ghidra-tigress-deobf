@@ -214,6 +214,7 @@ def find_handlers(
             # No path
             pass
 
+    handler_starts = set()
     handlers = []
     for path, ret in paths:
         opcode = 0
@@ -254,7 +255,9 @@ def find_handlers(
                         )
                     else:
                         warn(f"First handler opcode not found in {vm_func}")
-                handlers.append(Handler(opcode, start, end, Handler.DETECT_OPERANDS))
+                if not start in handler_starts:
+                    handlers.append(Handler(opcode, start, end, Handler.DETECT_OPERANDS))
+                    handler_starts.add(start)
                 break
     info(f"Found {len(handlers)} handlers")
     return handlers
