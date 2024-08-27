@@ -21,12 +21,15 @@ class Handler:
 
     DETECT_OPERANDS = -1
 
-    def __init__(self, opcode: int, start: int, end: int, *operand_sizes: int):
+    def __init__(
+        self, opcode: int, start: int, end: int, ret: bool, *operand_sizes: int
+    ):
         """Create a handler."""
         self.opcode = opcode
         self.start = start
         self.end = end
         self.set_operand_sizes(operand_sizes)
+        self.ret = ret
 
     def set_operand_sizes(self, operand_sizes: tuple[int, ...]):
         self.operand_sizes: tuple[int, ...] = operand_sizes
@@ -45,12 +48,15 @@ class Handler:
         end: int = default_end
         if "end" in handler_config:
             end = handler_config["end"]
+        ret: bool = False
+        if "ret" in handler_config:
+            ret = handler_config["ret"]
         detect_operands: bool = handler_config["detect_operands"]
         if detect_operands:
-            return cls(opcode, start, end, Handler.DETECT_OPERANDS)
+            return cls(opcode, start, end, ret, Handler.DETECT_OPERANDS)
         else:
             operands: list[int] = handler_config["operands"]
-            return cls(opcode, start, end, *operands)
+            return cls(opcode, start, end, ret, *operands)
 
     def unparse(self, default_end: int) -> str:
         result = (
@@ -62,6 +68,9 @@ class Handler:
         # Don't write default end
         if default_end != self.end:
             result += f"end = {hex(self.end)}\n"
+
+        if self.ret:
+            result += f"ret = true\n"
 
         if (
             len(self.operand_sizes) == 1

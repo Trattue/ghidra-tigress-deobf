@@ -24,3 +24,9 @@ class CallStatement(Statement):
         super().__init__()
         self.target = target
         self.arguments = arguments
+
+
+class RetStatement(Statement):
+    def __init__(self, value: claripy.ast.bv.BV) -> None:
+        super().__init__()
+        self.value = value

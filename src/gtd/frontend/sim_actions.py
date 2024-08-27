@@ -73,3 +73,12 @@ class SimActionEnd(SimActionFork):
 
     def _desc(self):
         return f"{self.type}/end: {self.id}"
+
+
+class SimActionRet(angr.state_plugins.SimAction):
+    def __init__(self, state: angr.sim_state.SimState):
+        super().__init__(state, "tmp")
+        self.state = state
+
+    def _desc(self):
+        return f"{self.type}/ret: {self.id}"

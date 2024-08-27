@@ -11,13 +11,14 @@ from gtd.frontend.sim_actions import (
 
 
 class Hooks:
-    def __init__(self, config: Config, vpc: claripy.ast.BV):
+    def __init__(self, config: Config, vpc: claripy.ast.BV, ret=False):
         self.config = config
         self.vpc = vpc
         self.__read_expr_count = 0
         self.__fork_id = 0
         self.operands: set[tuple[int, int]] = set()
         self.jt_targets: set[int] = set()
+        self.ret = ret
 
     def mem_read(self, state):
         length = state.inspect.mem_read_length

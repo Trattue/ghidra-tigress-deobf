@@ -138,17 +138,17 @@ def fix_c_file(
             # generate macros for every concat macro Ghidra uses in this file
             i.seek(0)
             concats: set[str] = set()
-            params: dict[int, str] = dict()
+            # params: dict[int, str] = dict()
             for i_line in i:
                 concat = re.findall("CONCAT\\d*", i_line)
                 concats = concats.union(concat)
-                # PARAMS
-                x = re.search("(.*)in_internal(\\d+)", i_line)
-                if x != None:
-                    type = x.group(1).lstrip()
-                    pos = int(x.group(2))
-                    if params.get(pos - 1) == None:
-                        params[pos - 1] = type
+                # # PARAMS
+                # x = re.search("(.*)in_internal(\\d+)", i_line)
+                # if x != None:
+                #     type = x.group(1).lstrip()
+                #     pos = int(x.group(2))
+                #     if params.get(pos - 1) == None:
+                #         params[pos - 1] = type
 
             for concat in concats:
                 c = concat.removeprefix("CONCAT")
@@ -186,21 +186,21 @@ def fix_c_file(
 
             i.seek(0)
             for i_line in i:
-                # PARAMS, part 2
-                x = re.search("(void \\w+\\()void(\\))", i_line)
-                if x != None:
-                    # VM Function declaration found
-                    o.write(f"{x.group(1)}")
-                    for p in sorted(params.keys()):
-                        if p != 0:
-                            o.write(", ")
-                        o.write(f"{params[p]}in_internal{p + 1}")
-                    o.write(f"{x.group(2)}\n")
-                    continue
-                x = re.search("(.*)in_internal(\\d+)", i_line)
-                if x != None and params.get(int(x.group(2)) - 1) != None:
-                    del params[int(x.group(2)) - 1]
-                    continue
+                # # PARAMS, part 2
+                # x = re.search("(void \\w+\\()void(\\))", i_line)
+                # if x != None:
+                #     # VM Function declaration found
+                #     o.write(f"{x.group(1)}")
+                #     for p in sorted(params.keys()):
+                #         if p != 0:
+                #             o.write(", ")
+                #         o.write(f"{params[p]}in_internal{p + 1}")
+                #     o.write(f"{x.group(2)}\n")
+                #     continue
+                # x = re.search("(.*)in_internal(\\d+)", i_line)
+                # if x != None and params.get(int(x.group(2)) - 1) != None:
+                #     del params[int(x.group(2)) - 1]
+                #     continue
 
                 # ASTRUCT
                 # initialize astruct so the compiler doesn't complain

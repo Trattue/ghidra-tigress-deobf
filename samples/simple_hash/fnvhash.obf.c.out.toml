@@ -71,6 +71,7 @@ detect_operands = true
 opcode = 0xca
 start = 0x4013da
 end = 0x4017d8
+ret = true
 detect_operands = true
 
 [[virtual_machines.handlers]]

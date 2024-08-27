@@ -21,6 +21,7 @@ internal_offsets = [0x138, 0x13c]
 opcode = 0xca
 start = 0x401936
 end = 0x401a15
+ret = true
 detect_operands = true
 
 [[virtual_machines.handlers]]

@@ -7,6 +7,7 @@ from gtd.frontend.state import State
 from gtd.frontend.statement import (
     CallStatement,
     ReadStatement,
+    RetStatement,
     WriteStatement,
 )
 
@@ -215,3 +216,5 @@ class StateGraph:
                     else:
                         self.nodes[id].jumps[self.END_GOTO_VPC_ID] = None
                         self.nodes[self.END_GOTO_VPC_ID].predecessors.add(id)
+                case gtd.frontend.sim_actions.SimActionRet:
+                    current.statements.append(RetStatement(action.state.regs.rax))

@@ -222,6 +222,13 @@ class Codegen:
                     result.context.append(f"param{i + 1} = {expr.expression};")
                 result.expression = f"call {hex(stmt.target)};"
                 return f"{result}\n"
+            case gtd.frontend.statement.RetStatement:
+                result = CodeGenExpr()
+                expr = self._codegen_expression(stmt.value)
+                result.context.extend(expr.context)
+                result.context.append(f"internal1 = {expr.expression};")
+                result.expression = f"return [internal1];"
+                return f"{result}\n"
 
     def _codegen_expression(self, expression) -> CodeGenExpr:
         match type(expression):

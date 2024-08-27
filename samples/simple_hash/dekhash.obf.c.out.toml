@@ -126,4 +126,5 @@ detect_operands = true
 opcode = 0xca
 start = 0x4012b6
 end = 0x4018d0
+ret = true
 detect_operands = true

@@ -7,6 +7,7 @@ from gtd.config.handler import Handler
 from gtd.config.locations import Locations
 from gtd.frontend.graph import StateGraph
 from gtd.frontend.hooks import Hooks
+from gtd.frontend.sim_actions import SimActionRet
 
 
 def simulate_vm(path: str, config: Config) -> list[StateGraph]:
@@ -53,6 +54,10 @@ def simulate_handler(
 
     graph = StateGraph(handler, config.locations, vpc)
     for solution in simulation.found:
+        # Manually call ret hook since that's custom
+        if handler.ret:
+            solution.history.add_action(SimActionRet(solution))
+
         # Manually call end hook since that's custom
         hooks.end(solution)
         graph.add_solution(solution)

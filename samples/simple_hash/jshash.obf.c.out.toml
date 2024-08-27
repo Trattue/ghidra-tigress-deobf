@@ -36,6 +36,7 @@ detect_operands = true
 opcode = 0xca
 start = 0x40162e
 end = 0x4018c6
+ret = true
 detect_operands = true
 
 [[virtual_machines.handlers]]
