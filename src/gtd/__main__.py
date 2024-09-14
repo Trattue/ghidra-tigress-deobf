@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 import tomllib
 
 from gtd.backend.codegen import Codegen
@@ -11,13 +12,13 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("config_path", help="Path to the VM config")
     args = p.parse_args()
-    run_with_config(args.config_path)
+    run_with_config(Path(args.config_path))
 
 
-def run_with_config(config_path: str):
-    with open(config_path, mode="rb") as file:
+def run_with_config(config_path: Path):
+    with config_path.open("rb") as file:
         toml_config = tomllib.load(file)
-        binary_path: str = toml_config["binary_path"]
+        binary_path: Path = Path(toml_config["binary_path"])
         for vm in toml_config["virtual_machines"]:
             config = Config.parse(vm)
             graphs = simulate_vm(binary_path, config)

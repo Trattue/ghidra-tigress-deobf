@@ -8,7 +8,6 @@ from pathlib import Path
 from gtd.config import Config
 
 
-# /opt/homebrew/Caskroom/ghidra/11.1.1-20240614/ghidra_11.1.1_PUBLIC/
 def auto_main():
     p = argparse.ArgumentParser()
     p.add_argument("dir")
@@ -25,10 +24,12 @@ def auto_main():
     input("PRESS ENTER TO CONTINUE\n")
 
     # Step 1: Config files -> processor specs
-    gen_processor_specs(args.dir)
+    dir = Path(args.dir)
+    ghidra_dir = Path(args.ghidra_install_dir)
+    # gen_processor_specs(dir)
     # Step 2: Compile processor specs to plugins
-    compile_plugins(args.ghidra_install_dir)
-    for file in os.scandir(args.dir):
+    # compile_plugins(ghidra_dir)
+    for file in os.scandir(dir):
         if file.is_file and file.name.endswith(".toml"):
             with open(file.path, mode="rb") as f:
                 toml_config = tomllib.load(f)
@@ -36,23 +37,24 @@ def auto_main():
                     config = Config.parse(vm)
                     # Step 3: Plugins -> pseudo code files
                     func_ret_sizes: dict[int, int] = {}
-                    plugin_stuff(
-                        args.dir, config, args.ghidra_install_dir, func_ret_sizes
-                    )
+                    plugin_stuff(dir, config, ghidra_dir, func_ret_sizes)
                     # Step 4: Pseudo code -> C files
-                    fix_c_files(config, args.dir, func_ret_sizes)
+                    fix_c_files(config, dir, func_ret_sizes)
 
 
 ##############################
 # CONFIGS -> PROCESSOR SPECS #
 #############################
-def gen_processor_specs(config_dir: str):
-    for file in os.scandir(config_dir):
+def gen_processor_specs(config_dir: Path):
+    # Delete old plugins
+    subprocess.call(f"rm -r plugins/tigress-*", shell=True)
+
+    for file in config_dir.iterdir():
         if file.is_file and file.name.endswith(".toml"):
-            gen_processor_spec(file.path)
+            gen_processor_spec(file)
 
 
-def gen_processor_spec(config_path: str):
+def gen_processor_spec(config_path: Path):
     # Use docker since a dependency of angr doesn't support ARM...
     subprocess.call(f"./run_docker.sh main {config_path}", shell=True)
 
@@ -60,38 +62,43 @@ def gen_processor_spec(config_path: str):
 ##############################
 # PROCESSOR SPECS -> PLUGINS #
 ##############################
-def compile_plugins(ghidra_dir: str):
-    # remoce old plugins from Ghidra extension folder
-    subprocess.call(f"rm -r {ghidra_dir}/Ghidra/Extensions/tigress-*/", shell=True)
-    dirs = [f.path for f in os.scandir("plugins/") if f.is_dir]
+def compile_plugins(ghidra_dir: Path):
+    # remove old plugins from Ghidra extension folder
+    subprocess.call(
+        f"rm -r {ghidra_dir.joinpath("Ghidra/Extensions/tigress-*/")}", shell=True
+    )
+    dirs = [f for f in Path("plugins/").iterdir() if f.is_dir]
     for d in dirs:
         # assuming dir to start with plugin/
-        if d[8:].startswith("tigress-"):
+        if d.name.startswith("tigress-"):
             compile_plugin(d, ghidra_dir)
 
 
-def compile_plugin(plugin_dir: str, ghidra_dir: str):
+def compile_plugin(plugin_dir: Path, ghidra_dir: Path):
     subprocess.call(
         f"cd {plugin_dir}; gradle -PGHIDRA_INSTALL_DIR={ghidra_dir}",
         shell=True,
     )
-    # install plugin to Ghidra extendion folder
+    # install plugin to Ghidra extension folder
     subprocess.call(
-        f"unzip '{plugin_dir}/dist/*.zip' -d {ghidra_dir}Ghidra/Extensions/", shell=True
+        f"unzip '{plugin_dir.joinpath("dist/*.zip")}' -d {ghidra_dir.joinpath("Ghidra/Extensions/")}",
+        shell=True,
     )
 
 
 ################################
 # PLUGINS -> PSEUDO CODE FILES #
 ################################
-
-
 def plugin_stuff(
-    config_dir: str, config: Config, ghidra_dir: str, func_ret_sizes: dict[int, int]
+    config_dir: Path, config: Config, ghidra_dir: Path, func_ret_sizes: dict[int, int]
 ):
-    sample = f"{Path(config_dir).as_posix()}/{config.vm_name}"
+    # Remove old Ghidra project
+    subprocess.call(
+        f"rm -r ./samples/ghidra && mkdir ./samples/ghidra", shell=True
+    )
+    sample = f"{config_dir.joinpath(config.vm_name)}"
     p = subprocess.run(
-        f"{ghidra_dir}support/analyzeHeadless samples/ghidra ghidra -import {sample} -processor tigressvm-{config.vm_name}:LE:64 -loader BinaryLoader -preScript DisableCoff.java -postScript Export.java",
+        f"{ghidra_dir.joinpath("support/analyzeHeadless samples/ghidra")} ghidra -import {sample} -processor tigressvm-{config.vm_name}:LE:64 -loader BinaryLoader -preScript DisableCoff.java -postScript Export.java",
         shell=True,
         capture_output=True,
         text=True,
@@ -104,14 +111,18 @@ def plugin_stuff(
             func_ret_sizes[func_addr] = 0
         else:
             func_ret_sizes[func_addr] = int(f[1])
+    # Remove old Ghidra project
+    subprocess.call(
+        f"mv ./samples/*.dec {config_dir}", shell=True
+    )
 
 
 ##########################
 # PSEUDO CODE -> C FILES #
 ##########################
-def fix_c_files(config: Config, config_dir: str, func_ret_sizes: dict[int, int]):
-    input = f"{Path(config_dir).as_posix()}/{config.vm_name}.dec"
-    output = f"{Path(config_dir).as_posix()}/{config.vm_name}.dec.c"
+def fix_c_files(config: Config, config_dir: Path, func_ret_sizes: dict[int, int]):
+    input = config_dir.joinpath(f"{config.vm_name}.dec")
+    output = config_dir.joinpath(f"{config.vm_name}.dec.c")
     fix_c_file(input, output, config, func_ret_sizes)
 
 
@@ -124,12 +135,14 @@ typedef unsigned int uint;
 
 
 def fix_c_file(
-    input_path: str, output_path: str, config: Config, func_ret_sizes: dict[int, int]
+    input_path: Path, output_path: Path, config: Config, func_ret_sizes: dict[int, int]
 ):
-    if not Path(input_path).exists():
+    if not input_path.exists():
         return
-    with open(input_path, "r") as i:
-        with open(output_path, "w+") as o:
+    with input_path.open("r") as i:
+        print(f"{input_path}")
+        with output_path.open("w+") as o:
+            print(f"{output_path}")
             # C FIX
             # some macros and definitions known to be needed
             o.write(C_FIX)
@@ -142,13 +155,6 @@ def fix_c_file(
             for i_line in i:
                 concat = re.findall("CONCAT\\d*", i_line)
                 concats = concats.union(concat)
-                # # PARAMS
-                # x = re.search("(.*)in_internal(\\d+)", i_line)
-                # if x != None:
-                #     type = x.group(1).lstrip()
-                #     pos = int(x.group(2))
-                #     if params.get(pos - 1) == None:
-                #         params[pos - 1] = type
 
             for concat in concats:
                 c = concat.removeprefix("CONCAT")
@@ -168,7 +174,7 @@ def fix_c_file(
             for f in config.functions:
                 functions[f.address] = f.name
             # FUNCTIONS, part 2
-            # Generate extern definitionss
+            # Generate extern definitions
             for f in func_ret_sizes:
                 ret_size = func_ret_sizes[f]
                 ret_type = "void"
@@ -186,35 +192,19 @@ def fix_c_file(
 
             i.seek(0)
             for i_line in i:
-                # # PARAMS, part 2
-                # x = re.search("(void \\w+\\()void(\\))", i_line)
-                # if x != None:
-                #     # VM Function declaration found
-                #     o.write(f"{x.group(1)}")
-                #     for p in sorted(params.keys()):
-                #         if p != 0:
-                #             o.write(", ")
-                #         o.write(f"{params[p]}in_internal{p + 1}")
-                #     o.write(f"{x.group(2)}\n")
-                #     continue
-                # x = re.search("(.*)in_internal(\\d+)", i_line)
-                # if x != None and params.get(int(x.group(2)) - 1) != None:
-                #     del params[int(x.group(2)) - 1]
-                #     continue
-
                 # ASTRUCT
                 # initialize astruct so the compiler doesn't complain
                 # we assume the struct definition to be as follows, and to only occur
                 # one time per function: astruct *fooo;
                 x = re.search("astruct \\*\\w*;", i_line)
-                if x != None:
+                if x is not None:
                     o.write("astruct locals = {0};\n")
                     (_, b) = x.span()
                     o.write(f"{i_line[:b-1]} = &locals{i_line[b-1:]}")
                     continue
 
                 # FUNCTIONS, part 3
-                # Rename funcions to their names
+                # Rename functions to their names
                 x = re.findall("func_0x\\d{8}", i_line)
                 if len(x) > 0:
                     for f in x:

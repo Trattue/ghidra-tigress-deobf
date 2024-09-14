@@ -2,13 +2,13 @@
 
 [[package]]
 name = "ailment"
-version = "9.2.116"
+version = "9.2.117"
 description = "The angr intermediate language."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "ailment-9.2.116-py3-none-any.whl", hash = "sha256:e57229cf3466329220fb2b5cd5d16a9c1637e427debb9a151fce0439113fba6d"},
-    {file = "ailment-9.2.116.tar.gz", hash = "sha256:c7ba9a0c22a5c460d17c6730d523122cd6f93f03f18479e88818df9cb3950a03"},
+    {file = "ailment-9.2.117-py3-none-any.whl", hash = "sha256:4854df0d9f09a9678ffc0f1f6114767f8e7423769773fe1e2b83c3bca5111eaf"},
+    {file = "ailment-9.2.117.tar.gz", hash = "sha256:1c4ce9cbd27fa7729da054cba9602cd29a9c28e1e2b659c5d99c9cba497a8a5d"},
 ]
 
 [package.extras]
@@ -17,27 +17,27 @@ testing = ["pytest", "pytest-xdist"]
 
 [[package]]
 name = "angr"
-version = "9.2.116"
+version = "9.2.117"
 description = "A multi-architecture binary analysis toolkit, with the ability to perform dynamic symbolic execution and various static analyses on binaries"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "angr-9.2.116-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:10c1a4f548dad34d6e082813c34f898c1c212d42988c36d8404a81cf02e70623"},
-    {file = "angr-9.2.116-py3-none-macosx_11_0_arm64.whl", hash = "sha256:42ad10db9419c4e7bf1729736045bb6363f1e5b4ef5d4cc329c228ca5182c094"},
-    {file = "angr-9.2.116-py3-none-manylinux2014_aarch64.whl", hash = "sha256:46772082941e97c0166ea0c732b1a21ba7139d09094773f995f32f8dbd740229"},
-    {file = "angr-9.2.116-py3-none-manylinux2014_x86_64.whl", hash = "sha256:44b1954ad79ba4f1a97e6243d404046394e3ca68cf9e7f6741e4560fb742aeb6"},
-    {file = "angr-9.2.116-py3-none-win_amd64.whl", hash = "sha256:9e224a9f4f95610a437bfdb40a3ed458017217e9f5c71965a3550ef7442c360b"},
-    {file = "angr-9.2.116.tar.gz", hash = "sha256:92dd59ac1d3490e2b1b1ccf36765db0491a6c4f2187fa1eb47963ffb1c27ec9c"},
+    {file = "angr-9.2.117-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:bb2cc3a8be8a5dac50222e0e262de12bf6f2b63b3406ea44de4b0d1a30b83bc8"},
+    {file = "angr-9.2.117-py3-none-macosx_11_0_arm64.whl", hash = "sha256:c0e1711de37d65a32fe524851517b427c29dddddb2539cf5bc0e36b2773446e1"},
+    {file = "angr-9.2.117-py3-none-manylinux2014_aarch64.whl", hash = "sha256:4736cc4a6196ae65ecd4d05ebc64c50a93fb64d53ef341e515db724835665b6c"},
+    {file = "angr-9.2.117-py3-none-manylinux2014_x86_64.whl", hash = "sha256:dc106cc321bbb9c611265545724a1064d6121a854a8fb75b33a0fe2cdcae6a86"},
+    {file = "angr-9.2.117-py3-none-win_amd64.whl", hash = "sha256:73d5beb44b063d879e5bf2fa2a444a65981855c661bc5d2fa1da2fd815ef4e7c"},
+    {file = "angr-9.2.117.tar.gz", hash = "sha256:3c5f04b285204d98f095c6116351400a3b1fffbf426e84a0ad2663493e09bc67"},
 ]
 
 [package.dependencies]
-ailment = "9.2.116"
-archinfo = "9.2.116"
+ailment = "9.2.117"
+archinfo = "9.2.117"
 cachetools = "*"
 capstone = "5.0.2"
 cffi = ">=1.14.0"
-claripy = "9.2.116"
-cle = "9.2.116"
+claripy = "9.2.117"
+cle = "9.2.117"
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 CppHeaderParser = "*"
 dpkt = "*"
@@ -50,7 +50,7 @@ protobuf = ">=3.19.0"
 psutil = "*"
 pycparser = ">=2.18"
 pyformlang = "*"
-pyvex = "9.2.116"
+pyvex = "9.2.117"
 rich = ">=13.1.0"
 rpyc = "*"
 sortedcontainers = "*"
@@ -66,13 +66,13 @@ testing = ["keystone-engine", "pypcode (>=3.0,<4.0)", "pytest", "pytest-split", 
 
 [[package]]
 name = "archinfo"
-version = "9.2.116"
+version = "9.2.117"
 description = "Classes with architecture-specific information useful to other projects."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "archinfo-9.2.116-py3-none-any.whl", hash = "sha256:72db63c930bb4ec1c4967d01246324e45b8ade7792e9f4b40d669b477f8e7655"},
-    {file = "archinfo-9.2.116.tar.gz", hash = "sha256:cd71d4c1b2cce4f992097b5a8b1b46c629a9f321dfc5151f7b1dd68ce84ca8b4"},
+    {file = "archinfo-9.2.117-py3-none-any.whl", hash = "sha256:2b1927d46b6195c5a098047ced235b820f9a3fb241d817da0dce4e2711fa6936"},
+    {file = "archinfo-9.2.117.tar.gz", hash = "sha256:bb4ce27b94bae54bfab6255b6b804ad961577ad1865268eeef0305ed73151a4d"},
 ]
 
 [package.extras]
@@ -351,13 +351,13 @@ pycparser = "*"
 
 [[package]]
 name = "claripy"
-version = "9.2.116"
+version = "9.2.117"
 description = "An abstraction layer for constraint solvers"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "claripy-9.2.116-py3-none-any.whl", hash = "sha256:3066d1015b62d5298afca90608ec379efcd6d4c38c96cbdeee80ab4ad3022526"},
-    {file = "claripy-9.2.116.tar.gz", hash = "sha256:cb61f1ce7fcd53607d0964a37acf60328406120a26293d889600ebc186074a81"},
+    {file = "claripy-9.2.117-py3-none-any.whl", hash = "sha256:703c0fa9681de8be6ca20870494cdcaf04b600833dd5dd0d5e995502536894a0"},
+    {file = "claripy-9.2.117.tar.gz", hash = "sha256:fb533942edc20e6b69c7165862cdb48c957375570187ffa24674a80e3fa9a0ce"},
 ]
 
 [package.dependencies]
@@ -371,21 +371,21 @@ testing = ["pytest", "pytest-xdist"]
 
 [[package]]
 name = "cle"
-version = "9.2.116"
+version = "9.2.117"
 description = "CLE Loads Everything (at least, many binary formats!) and provides a pythonic interface to analyze what they are and what they would look like in memory."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "cle-9.2.116-py3-none-any.whl", hash = "sha256:461e67b0c38a32ae1d40649d3816c6f59daded8a6a10d634e44300d1eb014b5a"},
-    {file = "cle-9.2.116.tar.gz", hash = "sha256:ec5cf2f3e50df7ae295c8ba1ec675d47df6c836b418b3e0cf75de5dedb55fa36"},
+    {file = "cle-9.2.117-py3-none-any.whl", hash = "sha256:5710c65b6ae0a619ba7a75a63f57f5f66b7ece8a5a589c66dbd31e3c86cd49cc"},
+    {file = "cle-9.2.117.tar.gz", hash = "sha256:38b866d9fad58cd27bf9215892c7829b15fc5ddc9576209d26b6fa8a7a2b22e3"},
 ]
 
 [package.dependencies]
-archinfo = "9.2.116"
+archinfo = "9.2.117"
 cart = "*"
 pefile = "*"
 pyelftools = ">=0.27"
-pyvex = "9.2.116"
+pyvex = "9.2.117"
 sortedcontainers = ">=2.0"
 
 [package.extras]
@@ -643,13 +643,13 @@ files = [
 
 [[package]]
 name = "pefile"
-version = "2023.2.7"
+version = "2024.8.26"
 description = "Python PE parsing module"
 optional = false
 python-versions = ">=3.6.0"
 files = [
-    {file = "pefile-2023.2.7-py3-none-any.whl", hash = "sha256:da185cd2af68c08a6cd4481f7325ed600a88f6a813bad9dea07ab3ef73d8d8d6"},
-    {file = "pefile-2023.2.7.tar.gz", hash = "sha256:82e6114004b3d6911c77c3953e3838654b04511b8b66e8583db70c65998017dc"},
+    {file = "pefile-2024.8.26-py3-none-any.whl", hash = "sha256:76f8b485dcd3b1bb8166f1128d395fa3d87af26360c2358fb75b80019b957c6f"},
+    {file = "pefile-2024.8.26.tar.gz", hash = "sha256:3ff6c5d8b43e8c37bb6e6dd5085658d658a7a0bdcd20b6a07b1fcfc1c4e9d632"},
 ]
 
 [[package]]
@@ -684,22 +684,22 @@ files = [
 
 [[package]]
 name = "protobuf"
-version = "5.27.3"
+version = "5.28.0"
 description = ""
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "protobuf-5.27.3-cp310-abi3-win32.whl", hash = "sha256:dcb307cd4ef8fec0cf52cb9105a03d06fbb5275ce6d84a6ae33bc6cf84e0a07b"},
-    {file = "protobuf-5.27.3-cp310-abi3-win_amd64.whl", hash = "sha256:16ddf3f8c6c41e1e803da7abea17b1793a97ef079a912e42351eabb19b2cffe7"},
-    {file = "protobuf-5.27.3-cp38-abi3-macosx_10_9_universal2.whl", hash = "sha256:68248c60d53f6168f565a8c76dc58ba4fa2ade31c2d1ebdae6d80f969cdc2d4f"},
-    {file = "protobuf-5.27.3-cp38-abi3-manylinux2014_aarch64.whl", hash = "sha256:b8a994fb3d1c11156e7d1e427186662b64694a62b55936b2b9348f0a7c6625ce"},
-    {file = "protobuf-5.27.3-cp38-abi3-manylinux2014_x86_64.whl", hash = "sha256:a55c48f2a2092d8e213bd143474df33a6ae751b781dd1d1f4d953c128a415b25"},
-    {file = "protobuf-5.27.3-cp38-cp38-win32.whl", hash = "sha256:043853dcb55cc262bf2e116215ad43fa0859caab79bb0b2d31b708f128ece035"},
-    {file = "protobuf-5.27.3-cp38-cp38-win_amd64.whl", hash = "sha256:c2a105c24f08b1e53d6c7ffe69cb09d0031512f0b72f812dd4005b8112dbe91e"},
-    {file = "protobuf-5.27.3-cp39-cp39-win32.whl", hash = "sha256:c84eee2c71ed83704f1afbf1a85c3171eab0fd1ade3b399b3fad0884cbcca8bf"},
-    {file = "protobuf-5.27.3-cp39-cp39-win_amd64.whl", hash = "sha256:af7c0b7cfbbb649ad26132e53faa348580f844d9ca46fd3ec7ca48a1ea5db8a1"},
-    {file = "protobuf-5.27.3-py3-none-any.whl", hash = "sha256:8572c6533e544ebf6899c360e91d6bcbbee2549251643d32c52cf8a5de295ba5"},
-    {file = "protobuf-5.27.3.tar.gz", hash = "sha256:82460903e640f2b7e34ee81a947fdaad89de796d324bcbc38ff5430bcdead82c"},
+    {file = "protobuf-5.28.0-cp310-abi3-win32.whl", hash = "sha256:66c3edeedb774a3508ae70d87b3a19786445fe9a068dd3585e0cefa8a77b83d0"},
+    {file = "protobuf-5.28.0-cp310-abi3-win_amd64.whl", hash = "sha256:6d7cc9e60f976cf3e873acb9a40fed04afb5d224608ed5c1a105db4a3f09c5b6"},
+    {file = "protobuf-5.28.0-cp38-abi3-macosx_10_9_universal2.whl", hash = "sha256:532627e8fdd825cf8767a2d2b94d77e874d5ddb0adefb04b237f7cc296748681"},
+    {file = "protobuf-5.28.0-cp38-abi3-manylinux2014_aarch64.whl", hash = "sha256:018db9056b9d75eb93d12a9d35120f97a84d9a919bcab11ed56ad2d399d6e8dd"},
+    {file = "protobuf-5.28.0-cp38-abi3-manylinux2014_x86_64.whl", hash = "sha256:6206afcb2d90181ae8722798dcb56dc76675ab67458ac24c0dd7d75d632ac9bd"},
+    {file = "protobuf-5.28.0-cp38-cp38-win32.whl", hash = "sha256:eef7a8a2f4318e2cb2dee8666d26e58eaf437c14788f3a2911d0c3da40405ae8"},
+    {file = "protobuf-5.28.0-cp38-cp38-win_amd64.whl", hash = "sha256:d001a73c8bc2bf5b5c1360d59dd7573744e163b3607fa92788b7f3d5fefbd9a5"},
+    {file = "protobuf-5.28.0-cp39-cp39-win32.whl", hash = "sha256:dde9fcaa24e7a9654f4baf2a55250b13a5ea701493d904c54069776b99a8216b"},
+    {file = "protobuf-5.28.0-cp39-cp39-win_amd64.whl", hash = "sha256:853db610214e77ee817ecf0514e0d1d052dff7f63a0c157aa6eabae98db8a8de"},
+    {file = "protobuf-5.28.0-py3-none-any.whl", hash = "sha256:510ed78cd0980f6d3218099e874714cdf0d8a95582e7b059b06cabad855ed0a0"},
+    {file = "protobuf-5.28.0.tar.gz", hash = "sha256:dde74af0fa774fa98892209992295adbfb91da3fa98c8f67a88afe8f5a349add"},
 ]
 
 [[package]]
@@ -859,17 +859,17 @@ diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyvex"
-version = "9.2.116"
+version = "9.2.117"
 description = "A Python interface to libVEX and VEX IR"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "pyvex-9.2.116-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:7927ae1a3e4f0878827bd6fac8e5152a86b113c4755ac284ec5086dbc7e6710f"},
-    {file = "pyvex-9.2.116-py3-none-macosx_11_0_arm64.whl", hash = "sha256:b300f33f661b5627fcfd49adb02b3e003b5e41654633430ec902b1c2cba5dd60"},
-    {file = "pyvex-9.2.116-py3-none-manylinux2014_aarch64.whl", hash = "sha256:70c7de32bd46bc28113b7f7dfdf550303e8dcb608c8cb12dea93ec2fb497a2f0"},
-    {file = "pyvex-9.2.116-py3-none-manylinux2014_x86_64.whl", hash = "sha256:29284f2d2cd013f43f009cb835788970a2032425a657a09a6bc9bf66e030cb57"},
-    {file = "pyvex-9.2.116-py3-none-win_amd64.whl", hash = "sha256:4409fa02ce9ecd40e8b980069a611b382362d2a19cff11b3385aa9cfa56b8793"},
-    {file = "pyvex-9.2.116.tar.gz", hash = "sha256:a849a82bc9dbc71d875c6fa946c97c56cd5af43b268903a7d7d4433247ed81eb"},
+    {file = "pyvex-9.2.117-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:0ccfd813878f02eeb0f29c962f9c1e2540ad927c7590f6fc079df5680377388e"},
+    {file = "pyvex-9.2.117-py3-none-macosx_11_0_arm64.whl", hash = "sha256:5be358d831d8d0f2415e2eab3d61f36d34c91dc3df71764776037ce8a2a79f85"},
+    {file = "pyvex-9.2.117-py3-none-manylinux2014_aarch64.whl", hash = "sha256:09f75900e8e3babe3282b4bdf110f1e67cb0c9e6a84e9d10ae0e9d446960154d"},
+    {file = "pyvex-9.2.117-py3-none-manylinux2014_x86_64.whl", hash = "sha256:2e1b23b7033ecd6c6eca3f47086038d00a09733e871fad35db839c9232f894d6"},
+    {file = "pyvex-9.2.117-py3-none-win_amd64.whl", hash = "sha256:f95d6937179a520e314e0087ac2a78b9b3ab568f1d3f6e69f6e270bb836849b5"},
+    {file = "pyvex-9.2.117.tar.gz", hash = "sha256:856e6e0a99683f1efe43c4586529ba6e9fd291b3dfb647cc9212ef0631c9b817"},
 ]
 
 [package.dependencies]
@@ -906,13 +906,13 @@ files = [
 
 [[package]]
 name = "rich"
-version = "13.7.1"
+version = "13.8.0"
 description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
 optional = false
 python-versions = ">=3.7.0"
 files = [
-    {file = "rich-13.7.1-py3-none-any.whl", hash = "sha256:4edbae314f59eb482f54e9e30bf00d33350aaa94f4bfcd4e9e3110e64d0d7222"},
-    {file = "rich-13.7.1.tar.gz", hash = "sha256:9be308cb1fe2f1f57d67ce99e95af38a1e2bc71ad9813b0e247cf7ffbcc3a432"},
+    {file = "rich-13.8.0-py3-none-any.whl", hash = "sha256:2e85306a063b9492dffc86278197a60cbece75bcb766022f3436f567cae11bdc"},
+    {file = "rich-13.8.0.tar.gz", hash = "sha256:a5ac1f1cd448ade0d59cc3356f7db7a7ccda2c8cbae9c7a90c28ff463d3e91f4"},
 ]
 
 [package.dependencies]
@@ -938,19 +938,23 @@ plumbum = "*"
 
 [[package]]
 name = "setuptools"
-version = "71.1.0"
+version = "74.0.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "setuptools-71.1.0-py3-none-any.whl", hash = "sha256:33874fdc59b3188304b2e7c80d9029097ea31627180896fb549c578ceb8a0855"},
-    {file = "setuptools-71.1.0.tar.gz", hash = "sha256:032d42ee9fb536e33087fb66cac5f840eb9391ed05637b3f2a76a7c8fb477936"},
+    {file = "setuptools-74.0.0-py3-none-any.whl", hash = "sha256:0274581a0037b638b9fc1c6883cc71c0210865aaa76073f7882376b641b84e8f"},
+    {file = "setuptools-74.0.0.tar.gz", hash = "sha256:a85e96b8be2b906f3e3e789adec6a9323abf79758ecfa3065bd740d81158b11e"},
 ]
 
 [package.extras]
-core = ["importlib-metadata (>=6)", "importlib-resources (>=5.10.2)", "jaraco.text (>=3.7)", "more-itertools (>=8.8)", "ordered-set (>=3.1.1)", "packaging (>=24)", "platformdirs (>=2.6.2)", "tomli (>=2.0.1)", "wheel (>=0.43.0)"]
-doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
-test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "importlib-metadata", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "mypy (==1.11.*)", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-home (>=0.5)", "pytest-mypy", "pytest-perf", "pytest-ruff (<0.4)", "pytest-ruff (>=0.2.1)", "pytest-ruff (>=0.3.2)", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
+check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1)", "ruff (>=0.5.2)"]
+core = ["importlib-metadata (>=6)", "importlib-resources (>=5.10.2)", "jaraco.text (>=3.7)", "more-itertools (>=8.8)", "packaging (>=24)", "platformdirs (>=2.6.2)", "tomli (>=2.0.1)", "wheel (>=0.43.0)"]
+cover = ["pytest-cov"]
+doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "pyproject-hooks (!=1.1)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier", "towncrier (<24.7)"]
+enabler = ["pytest-enabler (>=2.2)"]
+test = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "ini2toml[lite] (>=0.14)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "jaraco.test", "packaging (>=23.2)", "pip (>=19.1)", "pyproject-hooks (!=1.1)", "pytest (>=6,!=8.1.*)", "pytest-home (>=0.5)", "pytest-perf", "pytest-subprocess", "pytest-timeout", "pytest-xdist (>=3)", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel (>=0.44.0)"]
+type = ["importlib-metadata (>=7.0.2)", "jaraco.develop (>=7.21)", "mypy (==1.11.*)", "pytest-mypy"]
 
 [[package]]
 name = "smmap"
@@ -1050,4 +1054,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "a3377fbf97710c4cec7928b7e31a808dc2fe29f6ce0d47d9f8c87d418935f6c2"
+content-hash = "f2da3c08928d1873c8101abcc5d213a946b034ed0c8530d523c550c45e2a7ce1"

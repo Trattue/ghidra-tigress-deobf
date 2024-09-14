@@ -8,7 +8,7 @@ class CodeGenExpr:
         String containing the translated expression. Empty by default.
     context : list[str]
         List of statements, represented as strings, needed before the
-        expression. As example, helper variables used in the experssion
+        expression. As example, helper variables used in the expression
         can be defined here. Empty by default.
     """
 

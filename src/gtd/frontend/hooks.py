@@ -1,4 +1,5 @@
 import claripy
+
 from gtd.config import Config
 from gtd.frontend.sim_actions import (
     SimActionCall,
@@ -48,8 +49,7 @@ class Hooks:
         if (
             sym_offset.op != "BVS"
             and sym_offset.concrete
-            and sym_offset.args[0] <= 420
-            and sym_offset.args[0] > 0
+            and 420 >= sym_offset.args[0] > 0
         ):
             offset = sym_offset.args[0]
             self.operands.add((offset, length))

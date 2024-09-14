@@ -10,14 +10,14 @@ from gtd.frontend.hooks import Hooks
 from gtd.frontend.sim_actions import SimActionRet
 
 
-def simulate_vm(path: str, config: Config) -> list[StateGraph]:
+def simulate_vm(path: Path, config: Config) -> list[StateGraph]:
     project = angr.Project(path, load_options={"auto_load_libs": False})
 
     print(f"[+] Simulating VM {config.vm_name}")
     bytecode = project.loader.memory.load(
         config.bytecode_start, config.bytecode_end - config.bytecode_start
     )
-    with open(Path(path).parent.joinpath(config.vm_name), "wb") as f:
+    with open(path.parent.joinpath(config.vm_name), "wb") as f:
         f.write(bytecode)
         print("[*] Wrote bytecode")
 

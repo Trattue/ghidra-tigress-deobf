@@ -1,6 +1,7 @@
 import math
 
 import claripy
+
 import gtd.frontend.statement
 from gtd.backend.expression import CodeGenExpr
 from gtd.config import Config
@@ -25,7 +26,7 @@ class Codegen:
         print(f"[+] Codegen VM {self.config.vm_name}...")
         result = ""
 
-        # Generate different operand sizes (only those that are atually used by the
+        # Generate different operand sizes (only those that are actually used by the
         # handlers)
         sizes: set[int] = set()
         operands: dict[int, set[int]] = {}
@@ -123,7 +124,7 @@ class Codegen:
             else:
                 target_name = f"state_{target}"
 
-            if condition == None:
+            if condition is None:
                 result += f"goto <{target_name}>;\n"
             else:
                 if_side = f"if {self._codegen_bool(condition)} "
@@ -138,7 +139,7 @@ class Codegen:
                 # Special case: On the left side, we need to replace the addresses, at
                 # which vpc and vsp are, with the actual registers.
                 # We can translate the target and use its context in either way since in
-                # our special case there is no context. Maybe some day I will seperate
+                # our special case there is no context. Maybe some day I will separate
                 # the cases more clearly...
                 target = self._codegen_expression(stmt.target)
                 result.context.extend(target.context)
@@ -398,7 +399,7 @@ class Codegen:
                 #
                 # We have given:
                 # * The bit vectors to be concatenated
-                # * Their lengths (possibly not divisable by word size 8)
+                # * Their lengths (possibly not dividable by word size 8)
                 # * The total length of the concatenated expression (should be dividable
                 #   by word size 8)
                 #

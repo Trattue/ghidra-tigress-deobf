@@ -1,5 +1,6 @@
 import angr
 import claripy
+
 import gtd.frontend.sim_actions
 from gtd.config.handler import Handler
 from gtd.config.locations import Locations
@@ -52,7 +53,7 @@ class StateGraph:
         # are used) and iterate through the predecessors. Once we reverse this order,
         # we'll have an ordering that ensures that nodes are only returned after all of
         # their dependencies. Additionally, by first doing BFS on the regular and and
-        # then on the goto end, it will exnsure it the final iteration order the goto
+        # then on the goto end, it will ensure it the final iteration order the goto
         # end is always first.
 
         # BFS after regular end
@@ -74,7 +75,7 @@ class StateGraph:
             idx += 1
 
         # Apparently this is how you do ordered sets? This will make sure (after
-        # reversing) to keep only the first occurence of state ids in the iteration
+        # reversing) to keep only the first occurrence of state ids in the iteration
         # order.
         queue = list(dict.fromkeys(reversed(reverse_queue)))
         for node in queue:
@@ -136,7 +137,7 @@ class StateGraph:
                     # We need to add any jumps to this state we saved earlier and save
                     # the jump to the next state. We don't have issues with duplicate
                     # jumps to the same state since jumps are stored in a dictionary.
-                    if saved_jump != None:
+                    if saved_jump is not None:
                         self.nodes[saved_id].jumps[id] = saved_jump
                     saved_jump = current_jump
                     current_jump = None
@@ -144,7 +145,7 @@ class StateGraph:
                     # Since solutions share states in the beginning, we need to check if
                     # for duplicates in the graph. If a state with the same id exists,
                     # it is the same as the current state.
-                    if self.nodes.get(id) != None:
+                    if self.nodes.get(id) is not None:
                         self.nodes[id].predecessors.union(current.predecessors)
                         current = new_current
                         saved_id = id
@@ -161,7 +162,7 @@ class StateGraph:
                     new_current.predecessors.add(id)
 
                     # Jumps to this state:
-                    if saved_jump != None:
+                    if saved_jump is not None:
                         self.nodes[saved_id].jumps[id] = saved_jump
                     saved_jump = current_jump
                     current_jump = None
@@ -171,7 +172,7 @@ class StateGraph:
                         jump_table[(id, target)] = guard
 
                     # Check for duplicates
-                    if self.nodes.get(id) != None:
+                    if self.nodes.get(id) is not None:
                         self.nodes[id].predecessors.union(current.predecessors)
                         current = new_current
                         saved_id = id
@@ -181,7 +182,7 @@ class StateGraph:
                     self.nodes[id] = current
                     current = new_current
                 case gtd.frontend.sim_actions.SimActionJumpTableTarget:
-                    if saved_jump == None and (saved_id, action.addr) in jump_table:
+                    if saved_jump is None and (saved_id, action.addr) in jump_table:
                         saved_jump = jump_table[(saved_id, action.addr)]
                 case gtd.frontend.sim_actions.SimActionEnd:
                     # Since this is the last state in a solution, we can omit cleanup of
@@ -192,11 +193,11 @@ class StateGraph:
 
                     # ... save jumps to the current state (we can ignore the current
                     # jump since there is no next state, though)...
-                    if saved_jump != None:
+                    if saved_jump is not None:
                         self.nodes[saved_id].jumps[id] = saved_jump
 
                     # ... and add the state to the graph.
-                    if self.nodes.get(id) != None:
+                    if self.nodes.get(id) is not None:
                         self.nodes[id].predecessors.union(current.predecessors)
                         continue
                     self.nodes[id] = current
