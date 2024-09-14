@@ -3,6 +3,7 @@
 
 # Whitelist src
 !/docs/
+!/evaluation/
 !/src/
 !/tigress/
 !/.gitignore
