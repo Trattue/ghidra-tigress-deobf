@@ -94,7 +94,7 @@ class Codegen:
         return result
 
     def _codegen_state(
-        self, state: State, handler: Handler, vpc: claripy.ast.BV
+            self, state: State, handler: Handler, vpc: claripy.ast.BV
     ) -> str:
         result = ""
         match state.id:
@@ -160,15 +160,15 @@ class Codegen:
                 # We ignore reads at vpc and vsp as in sleigh code the registers can
                 # simply be used.
                 if stmt.origin.concrete and (
-                    stmt.origin.args[0] == self.config.locations.vpc
-                    or stmt.origin.args[0] == self.config.locations.vsp
+                        stmt.origin.args[0] == self.config.locations.vpc
+                        or stmt.origin.args[0] == self.config.locations.vsp
                 ):
                     return ""
 
                 # We ignore the weird read generated during the execution of switch cases.
                 if (
-                    not str(stmt.data.args[0]).startswith("mem_")
-                    and stmt.data.op == "If"
+                        not str(stmt.data.args[0]).startswith("mem_")
+                        and stmt.data.op == "If"
                 ):
                     return ""
 
@@ -196,9 +196,9 @@ class Codegen:
                 # bytes.
                 sym_offset = claripy.simplify(stmt.origin - vpc)
                 if (
-                    sym_offset.op != "BVS"
-                    and sym_offset.concrete
-                    and sym_offset.args[0] <= 420
+                        sym_offset.op != "BVS"
+                        and sym_offset.concrete
+                        and sym_offset.args[0] <= 420
                 ):
                     offset = sym_offset.args[0]
                     operand = handler.operands[offset]
@@ -317,10 +317,10 @@ class Codegen:
                     index = self.config.locations.internals.index(c)
                     result.expression = f"internal{index + 1}"
                 elif (
-                    c & 0x7FFFFFFFFF == c
-                    and c & 0xFFFFFFFF != c
-                    and c != self.config.locations.vpc
-                    and c != self.config.locations.vsp
+                        c & 0x7FFFFFFFFF == c
+                        and c & 0xFFFFFFFF != c
+                        and c != self.config.locations.vpc
+                        and c != self.config.locations.vsp
                 ):
                     result.expression = f"locals + {hex(c - locals_address)}"
                 else:
@@ -389,7 +389,7 @@ class Codegen:
                     f"local extract_{self.__extract_count}:{math.ceil(expr.args[2].length / 8)} = {translated.expression};"
                 )
                 least_significant_bit = expr.args[1]
-                bit_count = expr.args[0] - least_significant_bit
+                bit_count = expr.args[0] - least_significant_bit + 1
                 result.expression = f"extract_{self.__extract_count}[{least_significant_bit},{bit_count}]"
                 self.__extract_count += 1
                 return result

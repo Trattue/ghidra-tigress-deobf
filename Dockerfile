@@ -18,4 +18,4 @@ RUN	poetry install --no-root \
 COPY	src	./src
 RUN	poetry install
 
-ENTRYPOINT	["poetry","run"]
+ENTRYPOINT	[]

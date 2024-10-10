@@ -26,9 +26,13 @@ def auto_main():
     # Step 1: Config files -> processor specs
     dir = Path(args.dir)
     ghidra_dir = Path(args.ghidra_install_dir)
-    # gen_processor_specs(dir)
+    gen_processor_specs(dir)
     # Step 2: Compile processor specs to plugins
-    # compile_plugins(ghidra_dir)
+    compile_plugins(ghidra_dir)
+    # Remove old Ghidra project
+    subprocess.call(
+        f"rm -r ./samples/ghidra && mkdir ./samples/ghidra", shell=True
+    )
     for file in os.scandir(dir):
         if file.is_file and file.name.endswith(".toml"):
             with open(file.path, mode="rb") as f:
@@ -56,7 +60,7 @@ def gen_processor_specs(config_dir: Path):
 
 def gen_processor_spec(config_path: Path):
     # Use docker since a dependency of angr doesn't support ARM...
-    subprocess.call(f"./run_docker.sh main {config_path}", shell=True)
+    subprocess.call(f"./run_docker.sh poetry run main {config_path}", shell=True)
 
 
 ##############################
@@ -90,12 +94,9 @@ def compile_plugin(plugin_dir: Path, ghidra_dir: Path):
 # PLUGINS -> PSEUDO CODE FILES #
 ################################
 def plugin_stuff(
-    config_dir: Path, config: Config, ghidra_dir: Path, func_ret_sizes: dict[int, int]
+        config_dir: Path, config: Config, ghidra_dir: Path,
+        func_ret_sizes: dict[int, int]
 ):
-    # Remove old Ghidra project
-    subprocess.call(
-        f"rm -r ./samples/ghidra && mkdir ./samples/ghidra", shell=True
-    )
     sample = f"{config_dir.joinpath(config.vm_name)}"
     p = subprocess.run(
         f"{ghidra_dir.joinpath("support/analyzeHeadless samples/ghidra")} ghidra -import {sample} -processor tigressvm-{config.vm_name}:LE:64 -loader BinaryLoader -preScript DisableCoff.java -postScript Export.java",
@@ -131,11 +132,14 @@ C_FIX = """#define vm /*nothing*/
 typedef unsigned long long ulonglong;
 typedef long long longlong;
 typedef unsigned int uint;
+typedef unsigned char byte;
+typedef unsigned long long undefined8;
 """
 
 
 def fix_c_file(
-    input_path: Path, output_path: Path, config: Config, func_ret_sizes: dict[int, int]
+        input_path: Path, output_path: Path, config: Config,
+        func_ret_sizes: dict[int, int]
 ):
     if not input_path.exists():
         return
@@ -200,7 +204,7 @@ def fix_c_file(
                 if x is not None:
                     o.write("astruct locals = {0};\n")
                     (_, b) = x.span()
-                    o.write(f"{i_line[:b-1]} = &locals{i_line[b-1:]}")
+                    o.write(f"{i_line[:b - 1]} = &locals{i_line[b - 1:]}")
                     continue
 
                 # FUNCTIONS, part 3
